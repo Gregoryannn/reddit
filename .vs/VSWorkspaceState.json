@@ -2,10 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\firebase",
-    "\\firebase\\functions",
     "\\pages",
+    "\\src",
+    "\\src\\components",
+    "\\src\\components\\Navbar",
+    "\\src\\pages",
     "\\styles"
   ],
-  "SelectedNode": "\\pages\\index.tsx",
+  "SelectedNode": "\\src\\components\\Navbar\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
