@@ -1,13 +1,12 @@
 {
   "ExpandedNodes": [
     "",
-    "\\firebase",
     "\\pages",
     "\\src",
+    "\\src\\atoms",
     "\\src\\components",
-    "\\src\\components\\Navbar",
-    "\\src\\pages",
-    "\\styles"
+    "\\src\\components\\Layout",
+    "\\src\\components\\Navbar"
   ],
   "SelectedNode": "\\src\\components\\Navbar\\index.tsx",
   "PreviewInSolutionExplorer": false

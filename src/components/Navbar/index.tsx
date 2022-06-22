@@ -28,7 +28,6 @@ import { MdOutlineLogin } from "react-icons/md";
 import React from "react";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "../../atoms/authModalAtom";
-
 const Navbar: React.FC = () => {
     const setAuthModalState = useSetRecoilState(authModalState);
     return (
@@ -77,7 +76,7 @@ const Navbar: React.FC = () => {
                     display={{ base: "none", sm: "flex" }}
                     width={{ base: "70px", md: "110px" }}
                     mr={1}
-                    onClick={() => setAuthModalState(true)}
+                    onClick={() => setAuthModalState({ open: true, view: "login" })}
                 >
                     Log In
                 </Button>
@@ -86,7 +85,7 @@ const Navbar: React.FC = () => {
                     display={{ base: "none", sm: "flex" }}
                     width={{ base: "70px", md: "110px" }}
                     mr={1}
-                    onClick={() => setAuthModalState(true)}
+                    onClick={() => setAuthModalState({ open: true, view: "signup" })}
                 >
                     Sign Up
                 </Button>
@@ -107,7 +106,7 @@ const Navbar: React.FC = () => {
                             fontSize="10pt"
                             fontWeight={700}
                             _hover={{ bg: "blue.500", color: "white" }}
-                            onClick={() => setAuthModalState(true)}
+                            onClick={() => setAuthModalState({ open: true, view: "login" })}
                         >
                             <Flex alignItems="center">
                                 <Icon fontSize={20} mr={2} as={MdOutlineLogin} />
