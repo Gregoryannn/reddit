@@ -1,20 +1,8 @@
-import "../styles/globals.css";
+import { ChakraProvider } from "@chakra-ui/react";
 import type { AppProps } from "next/app";
 import { RecoilRoot } from "recoil";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-
-const theme = extendTheme({
-    fonts: {
-        body: "Open Sans, sans-serif",
-    },
-    styles: {
-        global: () => ({
-            body: {
-                bg: "gray.200",
-            },
-        }),
-    },
-});
+import { theme } from "../chakra/theme";
+import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
