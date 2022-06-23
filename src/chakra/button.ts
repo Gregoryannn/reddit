@@ -34,6 +34,9 @@ export const Button: ComponentStyleConfig = {
             height: "34px",
             border: "1px solid",
             borderColor: "gray.300",
+            _hover: {
+                bg: "gray.50",
+            },
         },
     },
 };
