@@ -1,12 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src",
-    "\\src\\chakra",
-    "\\src\\components",
-    "\\src\\components\\Layout",
-    "\\src\\components\\Navbar"
+    "\\functions",
+    "\\functions\\src",
+    "\\functions\\src\\components",
+    "\\functions\\src\\components\\Layout",
+    "\\functions\\src\\components\\Navbar",
+    "\\functions\\src\\pages"
   ],
-  "SelectedNode": "\\src\\components\\Layout\\OAuthButtons.tsx",
+  "SelectedNode": "\\functions\\src\\components\\Layout\\InputItem.tsx",
   "PreviewInSolutionExplorer": false
 }
