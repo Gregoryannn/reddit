@@ -1,30 +1,25 @@
+import { Flex } from "@chakra-ui/react";
 import React from "react";
-import { Box, Flex, Image } from "@chakra-ui/react";
-import { User } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useSetRecoilState } from "recoil";
-import { authModalState } from "../../atoms/authModalAtom";
-import { auth } from "../../firebase/clientApp";
-import RightContentWrapper from "./RightContent";
-import SearchInput from "./SearchInput";
+import { auth } from "../../../firebase/clientApp";
+import MenuWrapper from "./ProfileMenu/MenuWrapper";
+import AuthButtons from "./AuthButtons";
+import Icons from "./Icons";
+import { User } from "firebase/auth";
 
-const Navbar: React.FC = () => {
-    const [user] = useAuthState(auth);
-    // const currentUser = useRecoilValue(userState); // will implement later with custom user object
-
+type RightContentWrapper = {
+    user: User;
+};
+const RightContentWrapper: React.FC<RightContentWrapper> = ({ user }) => {
     return (
         <Flex
-            bg="white"
-            height="44px"
-            padding="6px 20px"
-            justifyContent={{ md: "space-between" }}
+            // width={{ sm: "auto", md: "300px" }}
+            justifyContent="space-between"
+            alignItems="center"
         >
-            <Box width={{ base: "40px", md: "auto" }} mr={2}>
-                <Image src="/images/redditlogo.png" height="30px" />
-            </Box>
-            <SearchInput user={user as User} />
-            <RightContentWrapper user={user as User} />
+            {user ? <Icons /> : <AuthButtons />}
+            <MenuWrapper />
         </Flex>
     );
 };
-export default Navbar;
+export default RightContentWrapper;
