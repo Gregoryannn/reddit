@@ -1,27 +1,22 @@
 import React, { useEffect } from "react";
 import {
-    useDisclosure,
-    Button,
+    Flex,
     Modal,
-    ModalOverlay,
+    ModalBody,
+    ModalCloseButton,
     ModalContent,
     ModalHeader,
-    ModalCloseButton,
-    ModalBody,
-    ModalFooter,
-    Box,
-    Flex,
-    Spinner,
-    Text,
+    ModalOverlay,
 } from "@chakra-ui/react";
 
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { authModalState } from "../../../atoms/authModalAtom";
-import OAuthButtons from "./OAuthButtons";
-import AuthInputs from "./Inputs";
 import { userState } from "../../../atoms/userAtom";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, firestore } from "../../../firebase/clientApp";
+import { auth } from "../../../firebase/clientApp";
+import AuthInputs from "./Inputs";
+import OAuthButtons from "./OAuthButtons";
+import ResetPassword from "./ResetPassword";
 
 type AuthModalProps = {};
 
@@ -32,18 +27,23 @@ const AuthModal: React.FC<AuthModalProps> = () => {
             ...prev,
             open: false,
         }));
-
     const currentUser = useRecoilValue(userState);
     const [user, error] = useAuthState(auth);
 
+    // Can implement at the end
     // useEffect(() => {
     //   if (currentUser) handleClose();
     // }, [currentUser]);
+    const toggleView = (view: string) => {
+        setModalState({
+            ...modalState,
+            view: view as typeof modalState.view,
+        });
+    };
 
     useEffect(() => {
         if (user) handleClose();
     }, [user]);
-
     return (
         <>
             <Modal isOpen={modalState.open} onClose={handleClose}>
@@ -54,7 +54,9 @@ const AuthModal: React.FC<AuthModalProps> = () => {
                         flexDirection="column"
                         alignItems="center"
                     >
-                        {modalState.view === "login" ? "Login" : "Sign Up"}
+                        {modalState.view === "login" && "Login"}
+                        {modalState.view === "signup" && "Sign Up"}
+                        {modalState.view === "resetPassword" && "Reset Password"}
                     </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody
@@ -68,21 +70,26 @@ const AuthModal: React.FC<AuthModalProps> = () => {
                             direction="column"
                             alignItems="center"
                             justifyContent="center"
-                            width="60%"
-                            minHeight="300px"
+                            width="70%"
                         >
-                            <></>
-                            <OAuthButtons />
-                            OR
-                            <AuthInputs />
-                            {user && !currentUser && (
+                            {modalState.view === "login" || modalState.view === "signup" ? (
                                 <>
-                                    <Spinner size="lg" mt={2} mb={2} />
-                                    <Text fontSize="8pt" textAlign="center" color="blue.500">
-                                        You are logged in. You will be redirected soon
-                                    </Text>
+                                    <OAuthButtons />
+                                    OR
+                                    <AuthInputs toggleView={toggleView} />
                                 </>
+                            ) : (
+                                <ResetPassword toggleView={toggleView} />
                             )}
+                            {/* // Will implement at end of tutorial */}
+                            {/* {user && !currentUser && (
+                <>
+                  <Spinner size="lg" mt={2} mb={2} />
+                  <Text fontSize="8pt" textAlign="center" color="blue.500">
+                    You are logged in. You will be redirected soon
+                  </Text>
+                </>
+              )} */}
                             {/* {false ? (
                 <Flex
                   direction="column"

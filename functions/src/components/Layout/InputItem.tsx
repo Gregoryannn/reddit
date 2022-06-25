@@ -1,11 +1,10 @@
 import { FormControl, FormErrorMessage, Input } from "@chakra-ui/react";
 import React from "react";
-
 type InputItemProps = {
     name: string;
     placeholder: string;
     type: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     mb?: number;
 };
 
