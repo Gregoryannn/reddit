@@ -8,13 +8,12 @@ import { User } from "firebase/auth";
 type SearchInputProps = {
     user: User;
 };
-
 const SearchInput: React.FC<SearchInputProps> = ({ user }) => {
     return (
         <Flex
             flexGrow={1}
             maxWidth={user ? "auto" : "600px"}
-            mr={4}
+            mr={2}
             alignItems="center"
         >
             <InputGroup>
@@ -37,7 +36,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ user }) => {
                         border: "1px solid",
                         borderColor: "blue.500",
                     }}
-                    height="30px"
+                    height="32px"
                     bg="gray.50"
                 />
             </InputGroup>
