@@ -4,10 +4,9 @@
     "\\functions",
     "\\functions\\src",
     "\\functions\\src\\components",
-    "\\functions\\src\\components\\Layout",
     "\\functions\\src\\components\\Navbar",
     "\\functions\\src\\pages"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Layout\\InputItem.tsx",
+  "SelectedNode": "\\functions\\src\\components\\Navbar\\index.tsx",
   "PreviewInSolutionExplorer": false
 }

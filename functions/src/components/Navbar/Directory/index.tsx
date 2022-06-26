@@ -1,28 +1,23 @@
 import React from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
-    Menu,
-    MenuButton,
+    Box,
     Flex,
     Icon,
-    Box,
+    Menu,
+    MenuButton,
+    MenuItem,
     MenuList,
     Text,
-    MenuItem,
 } from "@chakra-ui/react";
-import { user } from "firebase-functions/v1/auth";
-import { FaRedditSquare } from "react-icons/fa";
-import { IoSparkles, IoHomeSharp } from "react-icons/io5";
-import { TiHome } from "react-icons/ti";
-import { VscAccount } from "react-icons/vsc";
-import NoUserList from "../RightContent/ProfileMenu/NoUserList";
-import UserList from "../RightContent/ProfileMenu/UserList";
+
 import { CgProfile } from "react-icons/cg";
 import { MdOutlineLogin } from "react-icons/md";
+import { GrAdd } from "react-icons/gr";
+import { TiHome } from "react-icons/ti";
 import { logout } from "../../../firebase/authFunctions";
 
 type DirectoryProps = {};
-
 const Directory: React.FC<DirectoryProps> = () => {
     return (
         <Menu>
@@ -56,31 +51,32 @@ const Directory: React.FC<DirectoryProps> = () => {
             </MenuButton>
             <MenuList width="100%">
                 <>
-                    <MenuItem
-                        width="100%"
-                        fontSize="10pt"
-                        fontWeight={700}
-                        _hover={{ bg: "blue.500", color: "white" }}
-                    >
-                        <Flex alignItems="center">
-                            <Icon fontSize={20} mr={2} as={CgProfile} />
-                            Profile
-                        </Flex>
-                    </MenuItem>
-                    <MenuItem
-                        fontSize="10pt"
-                        fontWeight={700}
-                        _hover={{ bg: "blue.500", color: "white" }}
-                        onClick={logout}
-                    >
-                        <Flex alignItems="center">
-                            <Icon fontSize={20} mr={2} as={MdOutlineLogin} />
-                            Log Out
-                        </Flex>
-                    </MenuItem>
-                </>
-            </MenuList>
-        </Menu>
-    );
+                                     {/* <Flex direction="column" mt={2} mb={4}> */}
+                        <Text pl={3} fontSize="7pt" fontWeight={500} color="gray.500">
+                            MY COMMUNITIES
+                        </Text>
+                        <MenuItem width="100%" fontSize="10pt" _hover={{ bg: "gray.100" }}>
+                            <Flex alignItems="center">
+                            <Icon fontSize={20} mr={2} as={GrAdd} />
+                                Create Community
+                            </Flex>
+                        </MenuItem>
+                    
+                            {/* </Flex> */}
+                            <Text pl={3} fontSize="7pt" fontWeight={500} color="gray.500">
+                                FEEDS
+                            </Text>
+                            <MenuItem width="100%" fontSize="10pt" _hover={{ bg: "gray.100" }}>
+                                <Flex alignItems="center">
+                                 
+                                    <Icon fontSize={20} mr={2} as={GrAdd} />
+                                    Create Community
+                                </Flex>
+                            </MenuItem>
+                        </>
+                    </MenuList>
+                </Menu>
+                );
 };
+
 export default Directory;
