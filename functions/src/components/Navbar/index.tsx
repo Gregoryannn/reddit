@@ -8,6 +8,7 @@ import { auth } from "../../firebase/clientApp";
 import RightContentWrapper from "./RightContent";
 import SearchInput from "./SearchInput";
 import Directory from "./Directory";
+import AuthModal from "../Modal/Auth/AuthModal";
 
 const Navbar: React.FC = () => {
     const [user] = useAuthState(auth);
@@ -23,6 +24,7 @@ const Navbar: React.FC = () => {
                 <Image src="/images/redditlogo.png" height="30px" />
             </Box>
             {user && <Directory />}
+            <AuthModal />
             <SearchInput user={user as User} />
             <RightContentWrapper user={user as User} />
         </Flex>
