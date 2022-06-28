@@ -4,11 +4,10 @@
     "\\functions",
     "\\functions\\src",
     "\\functions\\src\\components",
-    "\\functions\\src\\components\\Layout",
+    "\\functions\\src\\components\\Modal\\CreateCommunity",
     "\\functions\\src\\components\\Navbar",
-    "\\functions\\src\\components\\Navbar\\Directory",
     "\\functions\\src\\pages"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Navbar\\Directory\\index.tsx",
+  "SelectedNode": "\\functions\\src\\components\\Navbar\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
