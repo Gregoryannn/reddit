@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
     Box,
     Button,
@@ -23,20 +22,27 @@ import {
     runTransaction,
     where,
 } from "firebase/firestore";
+import React, { useState } from "react";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
-import { auth, firestore } from "../../../firebase/clientApp";
+import { firestore } from "../../../firebase/clientApp";
+import { CommunitySnippet } from "../../Navbar/Directory/Communities";
 import ModalWrapper from "../ModalWrapper";
-import { useAuthState } from "react-firebase-hooks/auth";
+
+
 type CreateCommunityModalProps = {
     isOpen: boolean;
     handleClose: () => void;
+    userId: string;
+    setSnippetState?: (value: CommunitySnippet[]) => void;
 };
+
 const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     isOpen,
     handleClose,
+    userId,
+    setSnippetState,
 }) => {
-    const [user] = useAuthState(auth);
     const [name, setName] = useState("");
     const [charsRemaining, setCharsRemaining] = useState(21);
     const [nameError, setNameError] = useState("");
@@ -69,11 +75,12 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             await runTransaction(firestore, async (transaction) => {
                 const communityDocRef = doc(collection(firestore, "communities"));
                 transaction.set(communityDocRef, {
-                    creatorId: user?.uid,
+                    creatorId: userId,
                     name,
                 });
+
                 transaction.set(
-                    doc(collection(firestore, `users/${user?.uid}/communitySnippets`)),
+                    doc(collection(firestore, `users/${userId}/communitySnippets`)),
                     {
                         communityId: communityDocRef.id,
                         isModerator: true,
@@ -84,6 +91,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
         } catch (error) {
             console.log("Transaction error", error);
         }
+        // setSnippetState([]);
         setLoading(false);
     };
 

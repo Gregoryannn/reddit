@@ -5,9 +5,9 @@
     "\\functions\\src",
     "\\functions\\src\\components",
     "\\functions\\src\\components\\Modal",
-    "\\functions\\src\\components\\Navbar\\Directory",
+    "\\functions\\src\\components\\Modal\\CreateCommunity",
     "\\functions\\src\\pages"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Modal\\ModalWrapper.tsx",
+  "SelectedNode": "\\functions\\src\\components\\Modal\\CreateCommunity\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
