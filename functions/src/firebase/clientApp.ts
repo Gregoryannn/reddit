@@ -13,7 +13,8 @@ const firebaseConfig = {
 
 // Initialize Firebase for SSR
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// const app = initializeApp(firebaseConfig);
+const firestore = getFirestore(app);
 const auth = getAuth(app);
-const firestore = getFirestore();
 
 export { app, auth, firestore };
