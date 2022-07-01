@@ -16,7 +16,6 @@ import {
 import {
     collection,
     doc,
-    getDoc,
     getDocs,
     query,
     runTransaction,
@@ -28,13 +27,11 @@ import { HiLockClosed } from "react-icons/hi";
 import { firestore } from "../../../firebase/clientApp";
 import { CommunitySnippet } from "../../Navbar/Directory/Communities";
 import ModalWrapper from "../ModalWrapper";
-
-
 type CreateCommunityModalProps = {
     isOpen: boolean;
     handleClose: () => void;
     userId: string;
-    setSnippetState?: (value: CommunitySnippet[]) => void;
+    setSnippetState: (value: CommunitySnippet[]) => void;
 };
 
 const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
@@ -78,7 +75,6 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
                     creatorId: userId,
                     name,
                 });
-
                 transaction.set(
                     doc(collection(firestore, `users/${userId}/communitySnippets`)),
                     {
@@ -92,7 +88,9 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             console.log("Transaction error", error);
         }
         // setSnippetState([]);
+        setSnippetState([]);
         setLoading(false);
+        handleClose();
     };
 
     const onCommunityTypeChange = (
