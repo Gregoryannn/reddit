@@ -4,10 +4,9 @@
     "\\functions",
     "\\functions\\src",
     "\\functions\\src\\components",
-    "\\functions\\src\\components\\Modal",
-    "\\functions\\src\\components\\Modal\\CreateCommunity",
-    "\\functions\\src\\pages"
+    "\\functions\\src\\pages",
+    "\\functions\\src\\pages\\r"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Modal\\CreateCommunity\\index.tsx",
+  "SelectedNode": "\\functions\\src\\pages\\r\\[community].tsx",
   "PreviewInSolutionExplorer": false
 }

@@ -2,12 +2,12 @@ import React from "react";
 import { Box, MenuItem, Flex, Icon, Text, ListItem } from "@chakra-ui/react";
 import { FaReddit } from "react-icons/fa";
 import { GrAdd } from "react-icons/gr";
-import { CommunitySnippet } from "./Communities";
+import MenuListItem from "./MenuListItem";
+import { CommunitySnippet } from "../../../atoms/communitySnippetAtom";
 
 type ModeratingProps = {
     snippets: CommunitySnippet[];
 };
-
 const Moderating: React.FC<ModeratingProps> = ({ snippets }) => {
     return (
         <Box mt={3} mb={3}>
@@ -15,12 +15,13 @@ const Moderating: React.FC<ModeratingProps> = ({ snippets }) => {
                 MODERATING
             </Text>
             {snippets.map((snippet) => (
-                <MenuItem width="100%" fontSize="10pt" _hover={{ bg: "gray.100" }}>
-                    <Flex alignItems="center">
-                        <Icon fontSize={20} mr={2} as={FaReddit} color="blue.500" />
-                        {`r/${snippet.name}`}
-                    </Flex>
-                </MenuItem>
+                <MenuListItem
+                    key={snippet.communityId}
+                    displayText={`r/${snippet.communityId}`}
+                    link={`r/${snippet.communityId}`}
+                    icon={FaReddit as typeof Icon}
+                    iconColor="brand.100"
+                />
             ))}
         </Box>
     );
