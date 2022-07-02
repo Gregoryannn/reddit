@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
     Box,
     Button,
@@ -13,23 +14,12 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-import {
-    collection,
-    doc,
-    getDocs,
-    query,
-    runTransaction,
-    where,
-} from "firebase/firestore";
-
 import { doc, runTransaction } from "firebase/firestore";
-import React, { useState } from "react";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
-import { communitySnippetState } from "../../../atoms/communitySnippetAtom";
+import { myCommunitySnippetState } from "../../../atoms/myCommunitySnippetsAtom";
 import { firestore } from "../../../firebase/clientApp";
-import { CommunitySnippet } from "../../Navbar/Directory/Communities";
 import ModalWrapper from "../ModalWrapper";
 
 type CreateCommunityModalProps = {
@@ -37,14 +27,13 @@ type CreateCommunityModalProps = {
     handleClose: () => void;
     userId: string;
 };
-
 const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     isOpen,
     handleClose,
     userId,
     // setSnippetState,
 }) => {
-    const setSnippetState = useSetRecoilState(communitySnippetState);
+    const setSnippetState = useSetRecoilState(myCommunitySnippetState);
     const [name, setName] = useState("");
     const [charsRemaining, setCharsRemaining] = useState(21);
     const [nameError, setNameError] = useState("");
@@ -64,7 +53,6 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             );
         }
         setLoading(true);
-
         try {
             // Create community document and communitySnippet subcollection document on user
             const communityDocRef = doc(firestore, "communities", name);
@@ -95,7 +83,6 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
         setLoading(false);
         // will redirect
     };
-
     const onCommunityTypeChange = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -105,7 +92,6 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
         if (name === communityType) return;
         setCommunityType(name);
     };
-
     return (
         <ModalWrapper isOpen={isOpen} onClose={handleClose}>
             <ModalHeader

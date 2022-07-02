@@ -1,20 +1,16 @@
-import React from "react";
-import {
-    Box,
-    Button,
-    Flex,
-    Icon,
-    Skeleton,
-    Stack,
-    Text,
-} from "@chakra-ui/react";
-import { FaReddit } from "react-icons/fa";
-import { useDocumentDataOnce } from "react-firebase-hooks/firestore";
-import { doc } from "firebase/firestore";
+import { Box, Button, Flex, Icon, Skeleton, Text } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { firestore, auth } from "../../firebase/clientApp";
-import { useSetRecoilState } from "recoil";
+import { FaReddit } from "react-icons/fa";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { authModalState } from "../../atoms/authModalAtom";
+import {
+    CommunitySnippet,
+    myCommunitySnippetState,
+
+} from "../../atoms/myCommunitySnippetsAtom";
+import { auth } from "../../firebase/clientApp";
+import { getMySnippets } from "../../helpers/firestore";
 
 type HeaderProps = {
     communityData: any;
@@ -23,66 +19,82 @@ type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(authModalState);
-    const [value, loading, error] = useDocumentDataOnce(
-        doc(
-            firestore,
-            "users",
-            `${user?.uid}/communitySnippets/${communityData.id}`
-        )
-    );
-    console.log("HERE IS STUFF", value, loading, error);
-    const isJoined = !loading && value;
+    const [mySnippetsState, setMySnippetsState] = useRecoilState(
+            myCommunitySnippetState
+        );
 
+    const [loading, setLoading] = useState(!mySnippetsState.length && user);
     const onJoin = () => {
         console.log("INSIDE FUNCTION");
+        const isJoined = mySnippetsState.find(
+            (item) => item.communityId === communityData.id
+        );
 
-        if (!user) {
-            setAuthModalState({ open: true, view: "login" });
-        }
-    };
+        const onJoin = () => {
+            if (!user) {
+                setAuthModalState({ open: true, view: "login" });
+            }
+        };
 
-    return (
-        <Flex direction="column" width="100%" height="146px">
-            <Box height="50%" bg="blue.400" />
-            <Flex justifyContent="center" bg="white" height="50%">
-                <Flex width="60%">
-                    <Icon
-                        as={FaReddit}
-                        fontSize={64}
-                        position="relative"
-                        top={-3}
-                        color="blue.500"
-                        border="4px solid white"
-                        borderRadius="50%"
-                    />
-                    <Flex padding="10px 16px">
-                        <Flex direction="column" mr={6}>
-                            <Text fontWeight={800} fontSize="16pt">
-                                {communityData.id}
-                            </Text>
-                            <Text fontWeight={600} fontSize="10pt" color="gray.400">
-                                r/{communityData.id}
-                            </Text>
-                        </Flex>
-                        <Flex>
-                            {loading ? (
-                                <Skeleton height="30px" width="80px" />
-                            ) : (
-                                <Button
-                                    variant="outline"
-                                    height="30px"
-                                    pr={6}
-                                    pl={6}
-                                    onClick={onJoin}
-                                >
-                                    {isJoined ? "Joined" : "Join"}
-                                </Button>
-                            )}
+        useEffect(() => {
+            if (!!mySnippetsState.length || !user?.uid) return;
+            setLoading(true);
+            getSnippets();
+        }, [user]);
+
+        const getSnippets = async () => {
+            try {
+                const snippets = await getMySnippets(user?.uid!);
+                setMySnippetsState(snippets as CommunitySnippet[]);
+                setLoading(false);
+            } catch (error) {
+                console.log("Error getting user snippets", error);
+            }
+        };
+
+        return (
+            <Flex direction="column" width="100%" height="146px">
+                <Box height="50%" bg="blue.400" />
+                <Flex justifyContent="center" bg="white" height="50%">
+                    <Flex width="60%">
+                        <Icon
+                            as={FaReddit}
+                            fontSize={64}
+                            position="relative"
+                            top={-3}
+                            color="blue.500"
+                            border="4px solid white"
+                            borderRadius="50%"
+                        />
+                        <Flex padding="10px 16px">
+                            <Flex direction="column" mr={6}>
+                                <Text fontWeight={800} fontSize="16pt">
+                                    {communityData.id}
+                                </Text>
+                                <Text fontWeight={600} fontSize="10pt" color="gray.400">
+                                    r/{communityData.id}
+                                </Text>
+                            </Flex>
+                            <Flex>
+                                {loading ? (
+                                    <Skeleton height="30px" width="80px" />
+                                ) : (
+                                    <Button
+                                        variant="outline"
+                                        height="30px"
+                                        pr={6}
+                                        pl={6}
+                                        onClick={onJoin}
+                                    >
+                                        {isJoined ? "Joined" : "Join"}
+                                    </Button>
+                                )}
+                            </Flex>
                         </Flex>
                     </Flex>
                 </Flex>
             </Flex>
-        </Flex>
-    );
-};
+        );
+    };
+
 export default Header;
