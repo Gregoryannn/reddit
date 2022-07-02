@@ -7,56 +7,47 @@ import { authModalState } from "../../atoms/authModalAtom";
 import {
     CommunitySnippet,
     myCommunitySnippetState,
-
 } from "../../atoms/myCommunitySnippetsAtom";
 import { auth } from "../../firebase/clientApp";
 import { getMySnippets } from "../../helpers/firestore";
-
 type HeaderProps = {
     communityData: any;
 };
-
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(authModalState);
     const [mySnippetsState, setMySnippetsState] = useRecoilState(
-            myCommunitySnippetState
-        );
+        myCommunitySnippetState
+    );
+    const [loading, setLoading] = useState(!mySnippetsState.length && !!user);
 
-    const [loading, setLoading] = useState(!mySnippetsState.length && user);
+    const isJoined = mySnippetsState.find(
+        (item) => item.communityId === communityData.id
+    );
     const onJoin = () => {
-        console.log("INSIDE FUNCTION");
-        const isJoined = mySnippetsState.find(
-            (item) => item.communityId === communityData.id
-        );
-
-        const onJoin = () => {
-            if (!user) {
-                setAuthModalState({ open: true, view: "login" });
-            }
-        };
-
-        useEffect(() => {
-            if (!!mySnippetsState.length || !user?.uid) return;
-            setLoading(true);
-            getSnippets();
-        }, [user]);
-
-        const getSnippets = async () => {
-            try {
-                const snippets = await getMySnippets(user?.uid!);
-                setMySnippetsState(snippets as CommunitySnippet[]);
-                setLoading(false);
-            } catch (error) {
-                console.log("Error getting user snippets", error);
-            }
-        };
-
-        return (
-            <Flex direction="column" width="100%" height="146px">
-                <Box height="50%" bg="blue.400" />
-                <Flex justifyContent="center" bg="white" height="50%">
-                    <Flex width="60%">
+        if (!user) {
+            setAuthModalState({ open: true, view: "login" });
+        }
+    };
+    useEffect(() => {
+        if (!!mySnippetsState.length || !user?.uid) return;
+        setLoading(true);
+        getSnippets();
+    }, [user]);
+    const getSnippets = async () => {
+        try {
+            const snippets = await getMySnippets(user?.uid!);
+            setMySnippetsState(snippets as CommunitySnippet[]);
+            setLoading(false);
+        } catch (error) {
+            console.log("Error getting user snippets", error);
+        }
+    };
+    return (
+        <Flex direction="column" width="100%" height="146px">
+            <Box height="50%" bg="blue.400" />
+            <Flex justifyContent="center" bg="white" height="50%">
+                    <Flex width="95%" maxWidth="860px" border="1px solid red">
                         <Icon
                             as={FaReddit}
                             fontSize={64}
@@ -94,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                     </Flex>
                 </Flex>
             </Flex>
-        );
-    };
+            );
+};
 
 export default Header;
