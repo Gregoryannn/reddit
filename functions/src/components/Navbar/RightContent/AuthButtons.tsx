@@ -9,7 +9,6 @@ const AuthButtons: React.FC<AuthButtonsProps> = () => {
 
     return (
         <>
-            <AuthModal />
             <Button
                 variant="outline"
                 height="28px"

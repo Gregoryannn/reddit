@@ -9,19 +9,15 @@ import MenuWrapper from "./ProfileMenu/MenuWrapper";
 type RightContentProps = {
     user: User;
 };
-
 const RightContent: React.FC<RightContentProps> = ({ user }) => {
-        return (
-    <Flex
-      // width={{ sm: "auto", md: "300px" }}
-      justifyContent="space-between"
-      alignItems="center"
-    >
-      {user ? <Icons /> : <AuthButtons />}
-      <MenuWrapper />
- 
-    </>
-        );
-    };
-
+    return (
+        <>
+            <AuthModal />
+            <Flex justifyContent="space-between" alignItems="center">
+                {user ? <Icons /> : <AuthButtons />}
+                <MenuWrapper />
+            </Flex>
+        </>
+    );
+};
 export default RightContent;
