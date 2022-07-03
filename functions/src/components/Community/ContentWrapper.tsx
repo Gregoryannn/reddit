@@ -1,26 +1,32 @@
 import React from "react";
 import { Box, Flex } from "@chakra-ui/react";
 import CreatePostLink from "./CreatePostLink";
+import About from "./About";
+
 type ContentWrapperProps = {};
 
 const ContentWrapper: React.FC<ContentWrapperProps> = () => {
     return (
-            <Flex justify="center" border="1px solid pink" p="16px 0px">
-                <Flex width="95%" maxWidth="860px" border="1px solid red">
-                    {/* <Box width="65%" border="1px solid green"></Box> */}
-                    {/* Left Content */}
+        <Flex justify="center" border="1px solid pink" p="16px 0px">
+            <Flex width="95%" maxWidth="860px" border="1px solid red">
+                {/* <Box width="65%" border="1px solid green"></Box> */}
+                {/* Left Content */}
+                    <Flex width={{ base: "100%", md: "65%" }} mr={{ base: 0, md: 6 }}>
                     <CreatePostLink />
-                        <Box
-                            display={{ base: "none", md: "flex" }}
-                            flexGrow={1}
-                            border="1px solid blue"
-                        >
-                            hello
-                        </Box>
-
-                        {/* Right Content */}
-                </Flex>
             </Flex>
-            );
+            <About />
+            {/* <Box
+          display={{ base: "none", md: "flex" }}
+          flexGrow={1}
+          border="1px solid blue"
+        >
+          hello
+        </Box> */}
+
+            {/* Right Content */}
+        </Flex>
+    </Flex >
+  );
 };
-            export default ContentWrapper;
+
+export default ContentWrapper;

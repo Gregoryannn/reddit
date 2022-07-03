@@ -5,9 +5,7 @@ import React from "react";
 import { BsLink45Deg } from "react-icons/bs";
 import { FaReddit } from "react-icons/fa";
 import { IoImageOutline } from "react-icons/io5";
-
 type CreatePostProps = {};
-
 const CreatePostLink: React.FC<CreatePostProps> = () => {
     const router = useRouter();
     return (
@@ -16,7 +14,8 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
             align="center"
             bg="white"
             height="56px"
-            width={{ base: "100%", md: "65%" }}
+            width="100%"
+            // width={{ base: "100%", md: "65%" }}
             p={2}
         >
             <Icon as={FaReddit} fontSize={36} color="gray.300" mr={4} />
@@ -43,8 +42,14 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
                     mr={4}
                 />
             </Link>
-            <Icon as={IoImageOutline} fontSize={24} mr={4} color="gray.400" />
-            <Icon as={BsLink45Deg} fontSize={24} color="gray.400" />
+           <Icon
+                as={IoImageOutline}
+                fontSize={24}
+                mr={4}
+                color="gray.400"
+                cursor="pointer"
+            />
+            <Icon as={BsLink45Deg} fontSize={24} color="gray.400" cursor="pointer" />
         </Flex>
     );
 };
