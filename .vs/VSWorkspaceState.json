@@ -4,9 +4,13 @@
     "\\functions",
     "\\functions\\src",
     "\\functions\\src\\components",
+    "\\functions\\src\\components\\Community",
+    "\\functions\\src\\components\\Navbar",
+    "\\functions\\src\\components\\Navbar\\RightContent\\ProfileMenu",
     "\\functions\\src\\pages",
-    "\\functions\\src\\pages\\r"
+    "\\functions\\src\\pages\\r",
+    "\\functions\\src\\pages\\r\\[community]"
   ],
-  "SelectedNode": "\\functions\\src\\pages\\r\\[community].tsx",
+  "SelectedNode": "\\functions\\src\\pages\\r\\[community]\\submit.tsx",
   "PreviewInSolutionExplorer": false
 }
