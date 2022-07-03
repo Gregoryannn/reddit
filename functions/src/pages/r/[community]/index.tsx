@@ -9,16 +9,16 @@ import Link from "next/link";
 import CommunityNotFound from "../../../components/Community/CommunityNotFound";
 import ContentWrapper from "../../../components/Community/ContentWrapper";
 import dynamic from "next/dynamic";
+import About from "../../../components/Community/About";
+import CreatePostLink from "../../../components/Community/CreatePostLink";
+import PageContentLayout from "../../../components/Layout/PageContent";
 
 interface CommunityPageProps {
     communityData: string;
 }
-
 const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
     console.log("HERE IS COMMUNITY DATA", communityData);
-
     // set current community in recoil state to access in directory
-
     // Community was not found in the database
     if (!communityData) {
         return <CommunityNotFound />;
@@ -26,18 +26,24 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
     return (
         <>
             <Header communityData={communityData} />
-            <ContentWrapper />
+            <PageContentLayout>
+                {/* Left Content */}
+                <>
+                    <CreatePostLink />
+                </>
+                {/* Right Content */}
+                <>
+                    <About />
+                </>
+            </PageContentLayout>
         </>
     );
 };
-
 export default dynamic(() => Promise.resolve(CommunityPage), {
     ssr: false,
 });
-
 export async function getServerSideProps(context: NextPageContext) {
     console.log("GET SERVER SIDE PROPS RUNNING");
-
     try {
         const communityDocRef = doc(
             firestore,
@@ -57,5 +63,4 @@ export async function getServerSideProps(context: NextPageContext) {
         console.log("getServerSideProps error - [community]", error);
     }
 }
-
 // export default CommunityPage;
