@@ -1,28 +1,45 @@
-import { Button, Flex } from "@chakra-ui/react";
-import Header from "../../../components/Community/Header";
+import { useEffect } from "react";
 import type { NextPage, NextPageContext } from "next";
-import { useRecoilValue } from "recoil";
-import { myCommunitySnippetState } from "../../../atoms/myCommunitySnippetsAtom";
 import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "../../../firebase/clientApp";
-import Link from "next/link";
-import CommunityNotFound from "../../../components/Community/CommunityNotFound";
-import ContentWrapper from "../../../components/Community/ContentWrapper";
 import dynamic from "next/dynamic";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import {
+    Community,
+    visitedCommunitiesState,
+} from "../../../atoms/visitedCommunities";
 import About from "../../../components/Community/About";
+import CommunityNotFound from "../../../components/Community/CommunityNotFound";
 import CreatePostLink from "../../../components/Community/CreatePostLink";
+import Header from "../../../components/Community/Header";
 import PageContentLayout from "../../../components/Layout/PageContent";
+import { firestore } from "../../../firebase/clientApp";
 
 interface CommunityPageProps {
-    communityData: string;
+    communityData: Community;
 }
+
 const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
-    console.log("HERE IS COMMUNITY DATA", communityData);
+    const [visitedCommunities, setVisitedCommunities] = useRecoilState(
+        visitedCommunitiesState
+    );
+
     // set current community in recoil state to access in directory
+
     // Community was not found in the database
     if (!communityData) {
         return <CommunityNotFound />;
     }
+
+    useEffect(() => {
+        // First time the user has navigated to this page - add to cache
+        const firstSessionVisit = !visitedCommunities.find(
+            (item) => item.id === communityData.id
+        );
+        if (firstSessionVisit) {
+            setVisitedCommunities((prev) => [...prev, communityData]);
+        }
+    }, []);
+
     return (
         <>
             <Header communityData={communityData} />
@@ -33,7 +50,7 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
                 </>
                 {/* Right Content */}
                 <>
-                    <About />
+                    <About communityData={communityData} />
                 </>
             </PageContentLayout>
         </>
@@ -63,4 +80,3 @@ export async function getServerSideProps(context: NextPageContext) {
         console.log("getServerSideProps error - [community]", error);
     }
 }
-// export default CommunityPage;

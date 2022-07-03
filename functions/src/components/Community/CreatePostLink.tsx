@@ -14,8 +14,9 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
             align="center"
             bg="white"
             height="56px"
-            width="100%"
-            // width={{ base: "100%", md: "65%" }}
+            borderRadius={4}
+            border="1px solid"
+            borderColor="gray.300"
             p={2}
         >
             <Icon as={FaReddit} fontSize={36} color="gray.300" mr={4} />
@@ -37,12 +38,13 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
                         borderColor: "blue.500",
                     }}
                     bg="gray.50"
+                    borderColor="gray.200"
                     height="36px"
                     borderRadius={4}
                     mr={4}
                 />
             </Link>
-           <Icon
+            <Icon
                 as={IoImageOutline}
                 fontSize={24}
                 mr={4}
