@@ -9,21 +9,18 @@ import NewPostForm from "../../../components/Post/NewPostForm";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../firebase/clientApp";
 import { useEffect } from "react";
-
 const CreateCommmunityPostPage: NextPage = () => {
     const [user, loading, error] = useAuthState(auth);
     const router = useRouter();
     const { community } = router.query;
     const visitedCommunities = useRecoilValue(visitedCommunitiesState);
     console.log("HERE ARE VISITED COMMUNITIES", visitedCommunities);
-
     // Redirects user if not logged in - can probably create protected route component
     useEffect(() => {
         if (!loading && !user) {
             router.push("/");
         }
     }, [user, loading]);
-
     return (
         <PageContentLayout maxWidth="1060px">
             <>
@@ -36,9 +33,8 @@ const CreateCommmunityPostPage: NextPage = () => {
             </>
             <>
                 <About
-                    communityData={visitedCommunities.find(
-                        (item) => item.id === community
-                    )}
+                   
+                    communityData={visitedCommunities[community as string]}
                     pt={6}
                     onCreatePage
                 />
