@@ -7,29 +7,29 @@ import {
     Community,
     visitedCommunitiesState,
 } from "../../../atoms/visitedCommunities";
+
 import About from "../../../components/Community/About";
 import CommunityNotFound from "../../../components/Community/CommunityNotFound";
 import CreatePostLink from "../../../components/Community/CreatePostLink";
 import Header from "../../../components/Community/Header";
 import PageContentLayout from "../../../components/Layout/PageContent";
-import { firestore } from "../../../firebase/clientApp";
+import { auth, firestore } from "../../../firebase/clientApp";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 interface CommunityPageProps {
     communityData: Community;
 }
 
 const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
+    const [user, loading] = useAuthState(auth);
     const [visitedCommunities, setVisitedCommunities] = useRecoilState(
         visitedCommunitiesState
     );
-
     // set current community in recoil state to access in directory
-
     // Community was not found in the database
     if (!communityData) {
         return <CommunityNotFound />;
     }
-
     useEffect(() => {
         // First time the user has navigated to this page - add to cache
         const firstSessionVisit = !visitedCommunities.find(
@@ -39,15 +39,12 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
             setVisitedCommunities((prev) => [...prev, communityData]);
         }
     }, []);
-
     return (
         <>
             <Header communityData={communityData} />
             <PageContentLayout>
                 {/* Left Content */}
-                <>
-                    <CreatePostLink />
-                </>
+               <>{user && <CreatePostLink />}</>
                 {/* Right Content */}
                 <>
                     <About communityData={communityData} />
