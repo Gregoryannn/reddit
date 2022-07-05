@@ -7,14 +7,13 @@ export interface Community {
     createdAt: Timestamp;
     numberOfMembers: number;
 }
-
-    interface VisitedCommunitiesState {
+interface VisitedCommunitiesState {
     [key: string]: Community;
 }
-
 export interface Post {
     id: string;
     communityId: string;
+    userDisplayText: string;
     creatorId: string;
     title: string;
     body: string;
@@ -23,7 +22,6 @@ export interface Post {
     createdAt: Timestamp;
     editedAt: Timestamp;
 }
-
 export const visitedCommunitiesState = atom<VisitedCommunitiesState>({
     key: "visitedCommunitiesState",
     default: {},
