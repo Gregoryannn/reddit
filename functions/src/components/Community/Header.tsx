@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Icon, Skeleton, Text } from "@chakra-ui/react";
-import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
+import { Box, Button, Flex, Icon, Text } from "@chakra-ui/react";
+import { deleteDoc, doc, writeBatch } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { FaReddit } from "react-icons/fa";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -15,10 +15,10 @@ import { Community } from "../../atoms/visitedCommunities";
 import { auth, firestore } from "../../firebase/clientApp";
 import { getMySnippets } from "../../helpers/firestore";
 
-
 type HeaderProps = {
     communityData: Community;
 };
+
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(authModalState);
@@ -37,28 +37,35 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
 
         setLoading(true);
         if (isJoined) {
-            console.log("LEAVING COMMUNITY");
             leaveCommunity();
             return;
         }
-        console.log("JOINING COMMUNITY");
         joinCommunity();
     };
 
     const joinCommunity = async () => {
         try {
+            const batch = writeBatch(firestore);
             const newSnippet: CommunitySnippet = {
                 communityId: communityData.id!,
                 isModerator: communityData.creatorId === user?.uid,
             };
-            await setDoc(
-                doc(
-                    firestore,
-                    `users/${user?.uid}/communitySnippets`,
-                    communityData.id! // will for sure have this value at this point
-                ),
-                newSnippet
-            );
+
+              batch.set(
+                    doc(
+                        firestore,
+                        `users/${user?.uid}/communitySnippets`,
+                        communityData.id! // will for sure have this value at this point
+                    ),
+                    newSnippet
+                );
+
+            batch.update(doc(firestore, "communities", communityData.id!), {
+                numberOfMembers: communityData.numberOfMembers + 1,
+            });
+
+            // perform batch writes
+            await batch.commit();
 
             // Add current community to snippet
             setMySnippetsState((prev) => [...prev, newSnippet]);
@@ -67,7 +74,6 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
             console.log("joinCommunity error", error);
         }
     };
-
     const leaveCommunity = async () => {
         try {
             await deleteDoc(
@@ -85,7 +91,6 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
             console.log("leaveCommunity error", error);
         }
     };
-
     useEffect(() => {
         if (!!mySnippetsState.length || !user?.uid) return;
         setLoading(true);
