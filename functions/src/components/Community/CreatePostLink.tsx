@@ -5,7 +5,9 @@ import React from "react";
 import { BsLink45Deg } from "react-icons/bs";
 import { FaReddit } from "react-icons/fa";
 import { IoImageOutline } from "react-icons/io5";
+
 type CreatePostProps = {};
+
 const CreatePostLink: React.FC<CreatePostProps> = () => {
     const router = useRouter();
     return (
@@ -18,6 +20,7 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
             border="1px solid"
             borderColor="gray.300"
             p={2}
+            mb={4}
         >
             <Icon as={FaReddit} fontSize={36} color="gray.300" mr={4} />
             <Link href={`/r/${router.query.community}/submit`}>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Stack } from "@chakra-ui/react";
 import {
     collection,
     doc,
@@ -8,37 +9,39 @@ import {
     query,
     where,
 } from "firebase/firestore";
+
 import type { NextPage, NextPageContext } from "next";
 import dynamic from "next/dynamic";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState } from "recoil";
+import safeJsonStringify from "safe-json-stringify";
+
 import {
     Community,
     Post,
     visitedCommunitiesState,
 } from "../../../atoms/visitedCommunities";
+
 import About from "../../../components/Community/About";
 import CommunityNotFound from "../../../components/Community/CommunityNotFound";
 import CreatePostLink from "../../../components/Community/CreatePostLink";
 import Header from "../../../components/Community/Header";
 import PageContentLayout from "../../../components/Layout/PageContent";
+import PostItem from "../../../components/Post/PostItem";
 import { auth, firestore } from "../../../firebase/clientApp";
-import { serialize } from "v8";
-import safeJsonStringify from "safe-json-stringify";
+
+
 interface CommunityPageProps {
     communityData: Community;
 }
-
 const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
     // console.log("HERE IS COMMUNITY DATA", communityData);
-
     const [user] = useAuthState(auth);
     const [loading, setLoading] = useState(false);
     const [posts, setPosts] = useState<Post[]>([]);
     const [visitedCommunities, setVisitedCommunities] = useRecoilState(
         visitedCommunitiesState
     );
-
     useEffect(() => {
         // First time the user has navigated to this page - add to cache
         // const firstSessionVisit = !visitedCommunities.find(
@@ -107,12 +110,10 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
     //   }));
     //   setLoading(false);
     // };
-
     // Community was not found in the database
     if (!communityData) {
         return <CommunityNotFound />;
     }
-
     return (
         <>
             <Header communityData={communityData} />
@@ -121,21 +122,21 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
                 <>
                     {user && <CreatePostLink />}
                     {loading ? (
-                        <div>LOADING YOU HOMO</div>
+            <div>WILL ADD LOADERS</div>
                     ) : (
-                        <>
-                            {posts?.map((item: Post) => (
-                                <div key={item.id}>
-                                    {item.title} {item.voteStatus}
-                                </div>
-                            ))}
-                            {/* {visitedCommunities[
+                     
+            <Stack>
+              {posts.map((post: Post) => (
+                <PostItem key={post.id} post={post} />
+              ))}
+              {/* PART OF CACHED SOLUTION */}
+              {/* {visitedCommunities[
                 communityData.id as keyof typeof visitedCommunities
               ] &&
                 visitedCommunities[
                   communityData.id as keyof typeof visitedCommunities
                 ]?.posts.map((item) => <div key={item.id}>{item.title}</div>)} */}
-                        </>
+            </Stack>
                     )}
                 </>
                 {/* Right Content */}
