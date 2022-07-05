@@ -17,7 +17,6 @@ import {
     Post,
     visitedCommunitiesState,
 } from "../../../atoms/visitedCommunities";
-
 import About from "../../../components/Community/About";
 import CommunityNotFound from "../../../components/Community/CommunityNotFound";
 import CreatePostLink from "../../../components/Community/CreatePostLink";
@@ -26,30 +25,23 @@ import PageContentLayout from "../../../components/Layout/PageContent";
 import { auth, firestore } from "../../../firebase/clientApp";
 import { serialize } from "v8";
 import safeJsonStringify from "safe-json-stringify";
-
 interface CommunityPageProps {
     communityData: Community;
 }
 
 const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
-    console.log("HERE IS COMMUNITY DATA", communityData);
+    // console.log("HERE IS COMMUNITY DATA", communityData);
 
     const [user] = useAuthState(auth);
     const [loading, setLoading] = useState(false);
     const [posts, setPosts] = useState<Post[]>([]);
-
     const [visitedCommunities, setVisitedCommunities] = useRecoilState(
         visitedCommunitiesState
     );
-    // set current community in recoil state to access in directory
-    // Community was not found in the database
-    if (!communityData) {
-        return <CommunityNotFound />;
-    }
 
     useEffect(() => {
-         // First time the user has navigated to this page - add to cache
-         // const firstSessionVisit = !visitedCommunities.find(
+        // First time the user has navigated to this page - add to cache
+        // const firstSessionVisit = !visitedCommunities.find(
         //   (item) => item.id === communityData.id
         // );
         const firstSessionVisit = !visitedCommunities[communityData.id];
@@ -59,99 +51,100 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
                 [communityData.id]: communityData,
             }));
         }
- 
-}, [communityData]);
-
-useEffect(() => {
+    }, [communityData]);
+    useEffect(() => {
+        /**
+         * --> CACHE SOLUTION WITH RECOIL -->
+         */
+        // if (
+        //   !visitedCommunities[communityData.id as keyof typeof visitedCommunities]
+        //     ?.posts.length
+        // ) {
+        //   setLoading(true);
+        //   getPosts();
+        // }
+        /**
+         * <-- CACHE SOLUTION WITH RECOIL <--
+         */
+        setLoading(true);
+        const postsQuery = query(
+            collection(firestore, "posts"),
+            where("communityId", "==", communityData.id),
+            orderBy("createdAt", "desc")
+        );
+        const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
+            const posts = querySnaption.docs.map((post) => ({
+                id: post.id,
+                ...post.data(),
+            }));
+            console.log("HERE ARE POSTS", posts);
+            setPosts(posts as []);
+            setLoading(false);
+        });
+        // Remove real-time listener on component dismount
+        return () => unsubscribe();
+    }, [communityData]);
     /**
-     * --> CACHE SOLUTION WITH RECOIL -->
+     * PART OF CACHED SOLUTION
      */
-    // if (
-    //   !visitedCommunities[communityData.id as keyof typeof visitedCommunities]
-    //     ?.posts.length
-    // ) {
-    //   setLoading(true);
-    //   getPosts();
-    // }
-    /**
-     * <-- CACHE SOLUTION WITH RECOIL <--
-     */
+    // const getPosts = async () => {
+    //   const postsQuery = query(
+    //     collection(firestore, "posts"),
+    //     where("communityId", "==", communityData.id)
+    //   );
+    //   const querySnapshot = await getDocs(postsQuery);
+    //   const posts = querySnapshot.docs.map((post) => ({
+    //     id: post.id,
+    //     ...post.data(),
+    //   }));
+    //   // setPosts(posts as []);
+    //   setVisitedCommunities((prev) => ({
+    //     ...prev,
+    //     [communityData.id]: {
+    //       ...[communityData.id],
+    //       posts,
+    //     },
+    //   }));
+    //   setLoading(false);
+    // };
 
-    setLoading(true);
-    const postsQuery = query(
-        collection(firestore, "posts"),
-        where("communityId", "==", communityData.id),
-        orderBy("createdAt", "desc")
-    );
-    const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
-        const posts = querySnaption.docs.map((post) => ({
-            id: post.id,
-            ...post.data(),
-        }));
-        console.log("HERE ARE POSTS", posts);
-        setPosts(posts as []);
-        setLoading(false);
-    });
-    // Remove real-time listener on component dismount
-    return () => unsubscribe();
-}, [communityData]);
+    // Community was not found in the database
+    if (!communityData) {
+        return <CommunityNotFound />;
+    }
 
-/**
- * PART OF CACHED SOLUTION
- */
-// const getPosts = async () => {
-//   const postsQuery = query(
-//     collection(firestore, "posts"),
-//     where("communityId", "==", communityData.id)
-//   );
-//   const querySnapshot = await getDocs(postsQuery);
-//   const posts = querySnapshot.docs.map((post) => ({
-//     id: post.id,
-//     ...post.data(),
-//   }));
-//   // setPosts(posts as []);
-//   setVisitedCommunities((prev) => ({
-//     ...prev,
-//     [communityData.id]: {
-//       ...[communityData.id],
-//       posts,
-//     },
-//   }));
-//   setLoading(false);
-// };
-
-return (
-    <>
-        <Header communityData={communityData} />
-        <PageContentLayout>
-            {/* Left Content */}
-            <>
-                {user && <CreatePostLink />}
-                {loading ? (
-                    <div>LOADING YOU HOMO</div>
-                ) : (
-                    <>
-                        {posts?.map((item: Post) => (
-                            <div key={item.id}>
-                                {item.title} {item.voteStatus}
-                            </div>
-                        ))}
-                        {/* {visitedCommunities[
+    return (
+        <>
+            <Header communityData={communityData} />
+            <PageContentLayout>
+                {/* Left Content */}
+                <>
+                    {user && <CreatePostLink />}
+                    {loading ? (
+                        <div>LOADING YOU HOMO</div>
+                    ) : (
+                        <>
+                            {posts?.map((item: Post) => (
+                                <div key={item.id}>
+                                    {item.title} {item.voteStatus}
+                                </div>
+                            ))}
+                            {/* {visitedCommunities[
                 communityData.id as keyof typeof visitedCommunities
               ] &&
                 visitedCommunities[
                   communityData.id as keyof typeof visitedCommunities
                 ]?.posts.map((item) => <div key={item.id}>{item.title}</div>)} */}
-                    </>
-                )}
-            </>
-            {/* Right Content */}
-            <>
-                <About communityData={communityData} />
-            </>
-        </PageContentLayout>
-    </>
-);
+                        </>
+                    )}
+                </>
+                {/* Right Content */}
+                <>
+                    <About communityData={communityData} />
+                </>
+            </PageContentLayout>
+        </>
+    );
 };
 export default dynamic(() => Promise.resolve(CommunityPage), {
     ssr: false,
@@ -168,10 +161,10 @@ export async function getServerSideProps(context: NextPageContext) {
         return {
             props: {
                 communityData: communityDoc.exists()
-                        ? JSON.parse(
-                            safeJsonStringify({ id: communityDoc.id, ...communityDoc.data() }) // needed for dates
-                        )
-                        : "",
+                    ? JSON.parse(
+                        safeJsonStringify({ id: communityDoc.id, ...communityDoc.data() }) // needed for dates
+                    )
+                    : "",
             },
         };
     } catch (error) {
