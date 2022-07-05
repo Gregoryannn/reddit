@@ -11,11 +11,9 @@ import {
 import { Community } from "../../atoms/visitedCommunities";
 import { auth } from "../../firebase/clientApp";
 import { getMySnippets } from "../../helpers/firestore";
-
 type HeaderProps = {
     communityData: Community;
 };
-
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(authModalState);
@@ -29,8 +27,15 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const onJoin = () => {
         if (!user) {
             setAuthModalState({ open: true, view: "login" });
+            return;
         }
+        if (isJoined) {
+            console.log("LEAVING COMMUNITY");
+            return;
+        }
+        console.log("JOINING COMMUNITY");
     };
+
     useEffect(() => {
         if (!!mySnippetsState.length || !user?.uid) return;
         setLoading(true);

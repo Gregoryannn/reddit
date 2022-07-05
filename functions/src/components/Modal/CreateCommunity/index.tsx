@@ -14,13 +14,24 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-import { doc, runTransaction } from "firebase/firestore";
+
+import {
+    doc,
+    FieldValue,
+    runTransaction,
+    serverTimestamp,
+    Timestamp,
+} from "firebase/firestore";
+
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { myCommunitySnippetState } from "../../../atoms/myCommunitySnippetsAtom";
 import { firestore } from "../../../firebase/clientApp";
 import ModalWrapper from "../ModalWrapper";
+import { Community } from "../../../atoms/visitedCommunities";
+import { useRouter } from "next/router";
+
 
 type CreateCommunityModalProps = {
     isOpen: boolean;
@@ -39,6 +50,8 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     const [nameError, setNameError] = useState("");
     const [communityType, setCommunityType] = useState("public");
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.value.length > 21) return;
         setName(event.target.value);
@@ -61,9 +74,13 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
                 if (communityDoc.exists()) {
                     throw new Error(`Sorry, /r${name} is taken. Try another.`);
                 }
+
                 transaction.set(communityDocRef, {
                     creatorId: userId,
+                    createdAt: serverTimestamp(),
+                    numberOfMembers: 1,
                 });
+
                 transaction.set(
                     doc(firestore, `users/${userId}/communitySnippets`, name),
                     {
@@ -76,10 +93,14 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             console.log("Transaction error", error);
             setNameError(error.message);
         }
-        setSnippetState((prev) => ({
-            ...prev,
-            myCommunities: [],
-        }));
+ 
+        // setSnippetState((prev) => ({
+        //   ...prev,
+        //   myCommunities: [],
+        // }));
+        setSnippetState([]);
+        handleClose();
+        router.push(`r/${name}`);
         setLoading(false);
         // will redirect
     };
