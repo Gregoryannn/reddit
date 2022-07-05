@@ -1,16 +1,21 @@
 import { Box, Button, Flex, Icon, Skeleton, Text } from "@chakra-ui/react";
+import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { FaReddit } from "react-icons/fa";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { authModalState } from "../../atoms/authModalAtom";
+
 import {
     CommunitySnippet,
     myCommunitySnippetState,
 } from "../../atoms/myCommunitySnippetsAtom";
+
 import { Community } from "../../atoms/visitedCommunities";
-import { auth } from "../../firebase/clientApp";
+import { auth, firestore } from "../../firebase/clientApp";
 import { getMySnippets } from "../../helpers/firestore";
+
+
 type HeaderProps = {
     communityData: Community;
 };
@@ -29,11 +34,56 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
             setAuthModalState({ open: true, view: "login" });
             return;
         }
+
+        setLoading(true);
         if (isJoined) {
             console.log("LEAVING COMMUNITY");
+            leaveCommunity();
             return;
         }
         console.log("JOINING COMMUNITY");
+        joinCommunity();
+    };
+
+    const joinCommunity = async () => {
+        try {
+            const newSnippet: CommunitySnippet = {
+                communityId: communityData.id!,
+                isModerator: communityData.creatorId === user?.uid,
+            };
+            await setDoc(
+                doc(
+                    firestore,
+                    `users/${user?.uid}/communitySnippets`,
+                    communityData.id! // will for sure have this value at this point
+                ),
+                newSnippet
+            );
+
+            // Add current community to snippet
+            setMySnippetsState((prev) => [...prev, newSnippet]);
+            setLoading(false);
+        } catch (error) {
+            console.log("joinCommunity error", error);
+        }
+    };
+
+    const leaveCommunity = async () => {
+        try {
+            await deleteDoc(
+                doc(
+                    firestore,
+                    `users/${user?.uid}/communitySnippets/${communityData.id}`
+                )
+            );
+            // Remove current community from snippet state
+            setMySnippetsState((prev) =>
+                prev.filter((item) => item.communityId !== communityData.id)
+            );
+            setLoading(false);
+        } catch (error) {
+            console.log("leaveCommunity error", error);
+        }
     };
 
     useEffect(() => {
@@ -74,19 +124,16 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                             </Text>
                         </Flex>
                         <Flex>
-                            {loading ? (
-                                <Skeleton height="30px" width="80px" />
-                            ) : (
-                                <Button
-                                    variant="outline"
-                                    height="30px"
-                                    pr={6}
-                                    pl={6}
-                                    onClick={onJoin}
-                                >
-                                    {isJoined ? "Joined" : "Join"}
-                                </Button>
-                            )}
+                            <Button
+                                variant={isJoined ? "outline" : "solid"}
+                                height="30px"
+                                pr={6}
+                                pl={6}
+                                onClick={onJoin}
+                                isLoading={loading}
+                            >
+                                {isJoined ? "Joined" : "Join"}
+                            </Button>
                         </Flex>
                     </Flex>
                 </Flex>
