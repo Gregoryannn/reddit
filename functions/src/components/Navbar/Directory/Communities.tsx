@@ -8,11 +8,11 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-import { collection, getDocs, query } from "firebase/firestore";
+
 import { useAuthState } from "react-firebase-hooks/auth";
 import { FaReddit } from "react-icons/fa";
 import { GrAdd } from "react-icons/gr";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
     communitiesState,
     CommunitySnippet,
@@ -22,7 +22,7 @@ import { auth } from "../../../firebase/clientApp";
 import { getMySnippets } from "../../../helpers/firestore";
 import CreateCommunityModal from "../../Modal/CreateCommunity";
 import MenuListItem from "./MenuListItem";
-
+import useCommunitySnippets from "../../../hooks/useCommunitySnippets";
 
 type CommunitiesProps = {
     menuOpen: boolean;
@@ -30,31 +30,45 @@ type CommunitiesProps = {
 const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
     const [user] = useAuthState(auth);
     const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [currCommunitiesState, setCurrCommunitiesState] =
-        useRecoilState(communitiesState);
 
-    useEffect(() => {
-        // Only fetch snippets if menu is open and we don't have them in state cache
-        if (!user?.uid || !menuOpen || !!currCommunitiesState.mySnippets.length)
-            return;
-        setLoading(true);
-        getSnippets();
-    }, [menuOpen, user]);
+    // const [loading, setLoading] = useState(false);
+    // const [currCommunitiesState, setCurrCommunitiesState] =
+    //   useRecoilState(communitiesState);
 
-    const getSnippets = async () => {
-        try {
-            const snippets = await getMySnippets(user?.uid!);
-            // setMySnippetsState(snippets as CommunitySnippet[]);
-            setCurrCommunitiesState((prev) => ({
-                ...prev,
-                mySnippets: snippets as CommunitySnippet[],
-            }));
-            setLoading(false);
-        } catch (error) {
-            console.log("Error getting user snippets", error);
-        }
-    };
+    const currCommunitiesState = useRecoilValue(communitiesState);
+    const { snippets, loading, setLoading, error } = useCommunitySnippets(
+        user?.uid,
+        !user?.uid || !menuOpen,
+        [menuOpen, user],
+        false
+    );
+
+    /**
+     * USE THIS INITIALLY THEN CONVERT TO CUSTOM HOOK useCommunitySnippets AFTER
+     * ALSO REUSING THE SAME LOGIC INSIDE OF HEADER
+     */
+    // useEffect(() => {
+    //   // Only fetch snippets if menu is open and we don't have them in state cache
+    //   if (!user?.uid || !menuOpen || !!currCommunitiesState.mySnippets.length)
+    //     return;
+    //   setLoading(true);
+    //   getSnippets();
+    // }, [menuOpen, user]);
+
+    // const getSnippets = async () => {
+    //   try {
+    //     const snippets = await getMySnippets(user?.uid!);
+    //     // setMySnippetsState(snippets as CommunitySnippet[]);
+    //     setCurrCommunitiesState((prev) => ({
+    //       ...prev,
+    //       mySnippets: snippets as CommunitySnippet[],
+    //     }));
+    //     setLoading(false);
+    //   } catch (error) {
+    //     console.log("Error getting user snippets", error);
+    //   }
+    // };
+
     if (loading) {
         return (
             <Stack p={3}>
@@ -78,7 +92,7 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
                 <Text pl={3} mb={1} fontSize="7pt" fontWeight={500} color="gray.500">
                     MODERATING
                 </Text>
-        {currCommunitiesState.mySnippets
+                {currCommunitiesState.mySnippets
                     .filter((item) => item.isModerator)
                     .map((snippet) => (
                         <MenuListItem
@@ -105,18 +119,16 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
                         Create Community
                     </Flex>
                 </MenuItem>
-                    {
-                        currCommunitiesState.mySnippets.map((snippet) => (
-                            <MenuListItem
-                                key={snippet.communityId}
-                                icon={FaReddit as typeof Icon}
-                                displayText={`r/${snippet.communityId}`}
-                                link={`/r/${snippet.communityId}`}
-                                iconColor="blue.500"
-                            />
-                        ))
-                    }
-      </Box>
+                {currCommunitiesState.mySnippets.map((snippet) => (
+                    <MenuListItem
+                        key={snippet.communityId}
+                        icon={FaReddit as typeof Icon}
+                        displayText={`r/${snippet.communityId}`}
+                        link={`/r/${snippet.communityId}`}
+                        iconColor="blue.500"
+                    />
+                ))}
+            </Box>
         </>
     );
 };
