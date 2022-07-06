@@ -1,25 +1,34 @@
 import React from "react";
 import { Flex, Icon, Stack, Text } from "@chakra-ui/react";
-import { Post } from "../../atoms/communitiesAtom";
+import moment from "moment";
+import Link from "next/link";
+import { BsChat } from "react-icons/bs";
 import {
     IoArrowDownCircleOutline,
     IoArrowDownCircleSharp,
+    IoArrowRedoOutline,
     IoArrowUpCircleOutline,
     IoArrowUpCircleSharp,
-    IoArrowRedoOutline,
     IoBookmarkOutline,
 } from "react-icons/io5";
-import { BsChat } from "react-icons/bs";
-import moment from "moment";
-type PostItemProps = {
-    post: Post;
-    onVote: (post: Post, vote: number) => void;
-    userVoteValue?: number;
-};
+import { PostItemContentProps } from ".";
 
-const PostItem: React.FC<PostItemProps> = ({ post, onVote, userVoteValue }) => {
-        return (
-            <Flex border="1px solid" borderColor="gray.300" borderRadius={4} bg="white">
+const PostItemLink: React.FC<PostItemContentProps> = ({
+    post,
+    onVote,
+    userVoteValue,
+    communityId,
+}) => {
+    return (
+        <Link href={`/r/${communityId}/comments/${post.id}`}>
+            <Flex
+                border="1px solid"
+                borderColor="gray.300"
+                borderRadius={4}
+                bg="white"
+                cursor="pointer"
+                _hover={{ borderColor: "gray.500" }}
+            >
                 <Flex
                     direction="column"
                     align="center"
@@ -28,8 +37,10 @@ const PostItem: React.FC<PostItemProps> = ({ post, onVote, userVoteValue }) => {
                     borderRadius="3px 0px 0px 3px"
                 >
                     <Icon
-                         as={
-                            userVoteValue === 1 ? IoArrowUpCircleSharp : IoArrowUpCircleOutline
+                        as={
+                            userVoteValue === 1
+                                ? IoArrowUpCircleSharp
+                                : IoArrowUpCircleOutline
                         }
                         color={userVoteValue === 1 ? "brand.100" : "gray.400"}
                         fontSize={22}
@@ -38,7 +49,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, onVote, userVoteValue }) => {
                     />
                     {post.voteStatus}
                     <Icon
-                         as={
+                        as={
                             userVoteValue === -1
                                 ? IoArrowDownCircleSharp
                                 : IoArrowDownCircleOutline
@@ -69,7 +80,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, onVote, userVoteValue }) => {
                             cursor="pointer"
                         >
                             <Icon as={BsChat} mr={2} />
-                            <Text fontSize="9pt">{post.numberOfComments} Comments</Text>
+                            <Text fontSize="9pt">{post.numberOfComments}</Text>
                         </Flex>
                         <Flex
                             align="center"
@@ -94,7 +105,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, onVote, userVoteValue }) => {
                     </Flex>
                 </Flex>
             </Flex>
-        );
-    };
-
-export default PostItem;
+        </Link>
+    );
+};
+export default PostItemLink;
