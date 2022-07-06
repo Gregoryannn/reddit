@@ -1,170 +1,100 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Stack, useClipboard } from "@chakra-ui/react";
-import { Community, Post } from "../../atoms/communitiesAtom";
-import PostItem from "./PostItem";
+import React from "react";
+import { Flex, Icon, Stack, Text } from "@chakra-ui/react";
+import { Post } from "../../atoms/communitiesAtom";
 import {
-    query,
-    collection,
-    where,
-    orderBy,
-    onSnapshot,
-    getDocs,
-    writeBatch,
-    doc,
-} from "firebase/firestore";
-import { firestore } from "../../firebase/clientApp";
-
-type PostVote = {
-    id?: string;
-    postId: string;
-    communityId: string;
-    voteValue: number;
+    IoArrowDownCircleOutline,
+    IoArrowDownCircleSharp,
+    IoArrowUpCircleOutline,
+    IoArrowUpCircleSharp,
+    IoArrowRedoOutline,
+    IoBookmarkOutline,
+} from "react-icons/io5";
+import { BsChat } from "react-icons/bs";
+import moment from "moment";
+type PostItemProps = {
+    post: Post;
+    onVote: (post: Post, vote: number) => void;
+    userVoteValue?: number;
 };
 
-type PostsProps = {
-    communityData: Community;
-    userId?: string;
-};
+const PostItem: React.FC<PostItemProps> = ({ post, onVote, userVoteValue }) => {
+        return (
+            <Flex border="1px solid" borderColor="gray.300" borderRadius={4} bg="white">
+                <Flex
+                    direction="column"
+                    align="center"
+                    bg="gray.100"
+                    p={2}
+                    borderRadius="3px 0px 0px 3px"
+                >
+                    <Icon
+                         as={
+                            userVoteValue === 1 ? IoArrowUpCircleSharp : IoArrowUpCircleOutline
+                        }
+                        color={userVoteValue === 1 ? "brand.100" : "gray.400"}
+                        fontSize={22}
+                        cursor="pointer"
+                        onClick={() => onVote(post, 1)}
+                    />
+                    {post.voteStatus}
+                    <Icon
+                         as={
+                            userVoteValue === -1
+                                ? IoArrowDownCircleSharp
+                                : IoArrowDownCircleOutline
+                        }
+                        color={userVoteValue === -1 ? "#4379FF" : "gray.400"}
+                        fontSize={22}
+                        cursor="pointer"
+                        onClick={() => onVote(post, -1)}
+                    />
+                </Flex>
+                <Flex direction="column">
+                    <Stack spacing={1} p="10px 10px">
+                        <Text fontSize="9pt" color="gray.500">
+                            Posted by u/{post.userDisplayText}{" "}
+                            {moment(new Date(post.createdAt.seconds * 1000)).fromNow()}
+                        </Text>
+                        <Text fontSize="12pt" fontWeight={600}>
+                            {post.title}
+                        </Text>
+                        <Text fontSize="10pt">{post.body}</Text>
+                    </Stack>
+                    <Flex ml={1} mb={0.5} color="gray.500" fontWeight={600}>
+                        <Flex
+                            align="center"
+                            p="8px 10px"
+                            borderRadius={4}
+                            _hover={{ bg: "gray.200" }}
+                            cursor="pointer"
+                        >
+                            <Icon as={BsChat} mr={2} />
+                            <Text fontSize="9pt">{post.numberOfComments} Comments</Text>
+                        </Flex>
+                        <Flex
+                            align="center"
+                            p="8px 10px"
+                            borderRadius={4}
+                            _hover={{ bg: "gray.200" }}
+                            cursor="pointer"
+                        >
+                            <Icon as={IoArrowRedoOutline} mr={2} />
+                            <Text fontSize="9pt">Share</Text>
+                        </Flex>
+                        <Flex
+                            align="center"
+                            p="8px 10px"
+                            borderRadius={4}
+                            _hover={{ bg: "gray.200" }}
+                            cursor="pointer"
+                        >
+                            <Icon as={IoBookmarkOutline} mr={2} />
+                            <Text fontSize="9pt">Saved</Text>
+                        </Flex>
+                    </Flex>
+                </Flex>
+            </Flex>
+        );
+    };
 
-enum VoteValue {
-    UPVOTE = 1,
-    DOWNVOTE = -1,
-}
-
-const Posts: React.FC<PostsProps> = ({ communityData, userId }) => {
-    const [posts, setPosts] = useState([]);
-    const [userVotes, setUserVotes] = useState<PostVote[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-
-    const onVote = async (post: Post, vote: number) => {
-            const { voteStatus } = post;
-            // is this an upvote or a downvote?
-            console.log("HERE IS POST", post, vote);
-
-            // has this user voted on this post already? was it up or down?
-            const existingVote = userVotes.find(
-                (item: PostVote) => item.postId === post.id
-            );
-            console.log("HERE IS EXISTING VOTE", existingVote);
-
-            // Check if making same vote
-            if (existingVote && existingVote.voteValue === vote) {
-                console.log("SAME VOTE - RETURNING");
-                return;
-            }
-
-            // If existingVote at this point, user is switching their vote
-            const voteChange = existingVote ? 2 * vote : vote;
-
-            try {
-                const batch = writeBatch(firestore);
-
-                const postRef = doc(firestore, "posts", post.id);
-                batch.update(postRef, { voteStatus: voteStatus + voteChange });
-
-                const updatedVote: PostVote = {
-                    postId: post.id,
-                    communityId: communityData.id!,
-                    voteValue: vote,
-                };
-                if (existingVote) {
-                    const postVoteRef = doc(
-                        firestore,
-                        "users",
-                        `${userId}/postVotes/${existingVote.id}`
-                    );
-                    updatedVote.id = existingVote.id;
-                    batch.update(postVoteRef, {
-                        voteValue: vote,
-                    });
-                } else {
-                    const postVoteRef = doc(
-                        collection(firestore, "users", `${userId}/postVotes`)
-                    );
-                    updatedVote.id = postVoteRef.id;
-                    batch.set(postVoteRef, updatedVote);
-                }
-                await batch.commit();
-
-                // Update vote state
-                if (existingVote) {
-                    const existingPostIdx = userVotes.findIndex(
-                        (item) => item.postId === post.id
-                    );
-                    const updatedVotes = [...userVotes];
-                    updatedVotes[existingPostIdx] = updatedVote;
-                    setUserVotes(updatedVotes);
-                    return;
-                }
-                setUserVotes((prev) => [...prev, updatedVote]);
-            } catch (error) {
-                console.log("onVote error", error);
-            }
-    
-};
-
-const getUserPostVotes = async () => {
-        try {
-            const postVotesQuery = query(
-                collection(firestore, `users/${userId}/postVotes`),
-                where("communityId", "==", communityData.id)
-            );
-     
-console.log("HERE IS USERID", userId);
-
-const postVoteDocs = await getDocs(postVotesQuery);
-const postVotes = postVoteDocs.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-}));
-
-setUserVotes(postVotes as PostVote[]);
-console.log("POST VOTES", postVotes);
-    } catch (error) {
-    console.log("getUserPostVotes error", error);
-}
-};
-
-useEffect(() => {
-    setLoading(true);
-    const postsQuery = query(
-        collection(firestore, "posts"),
-        where("communityId", "==", communityData.id),
-        orderBy("createdAt", "desc")
-    );
-    // Real-time post listener
-    const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
-        const posts = querySnaption.docs.map((post) => ({
-            id: post.id,
-            ...post.data(),
-        }));
-        console.log("HERE ARE POSTS", posts);
-        setPosts(posts as []);
-        setLoading(false);
-    });
-
-    // Remove real-time listener on component dismount
-    return () => unsubscribe();
-}, [communityData]);
-
-useEffect(() => {
-    if (!userId) return;
-    getUserPostVotes();
-}, [communityData, userId]);
-
-return (
-    <Stack>
-        {loading ? (
-            <div>WILL ADD LOADERS</div>
-        ) : (
-            <>
-                {posts.map((post: Post) => (
-                    <PostItem key={post.id} post={post} onVote={onVote} />
-                ))}
-            </>
-        )}
-    </Stack>
-);
-};
-export default Posts;
+export default PostItem;
