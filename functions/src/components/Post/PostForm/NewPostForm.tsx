@@ -10,7 +10,6 @@ import { useSetRecoilState } from "recoil";
 import { communitiesState } from "../../../atoms/communitiesAtom";
 import { firestore } from "../../../firebase/clientApp";
 import TabItem from "./TabItem";
-
 const formTabs = [
     {
         title: "Post",
@@ -49,6 +48,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
         body: "",
     });
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const setCommunityPostState = useSetRecoilState(communitiesState);
 
     const handleCreatePost = async () => {
@@ -69,24 +69,12 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
             console.log("HERE IS NEW POST ID", newPostRef.id);
         } catch (error) {
             console.log("createPost error", error);
+            setError("Error creating post");
         }
+
         setLoading(false);
-        setForm({
-            title: "",
-            body: "",
-        });
- 
         router.back();
-        /**
-         * PART OF CACHE SOLUTION - CLEARING POST CACHE
-         */
-        // setCommunityPostState((prev) => ({
-        //   ...prev,
-        //   [communityId]: {
-        //     ...prev[communityId],
-        //     posts: [],
-        //   },
-        // }));
+
     };
 
     const onChange = ({

@@ -5,36 +5,39 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { FaReddit } from "react-icons/fa";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { authModalState } from "../../atoms/authModalAtom";
-
 import {
     CommunitySnippet,
     myCommunitySnippetState,
 } from "../../atoms/myCommunitySnippetsAtom";
-
-import { Community } from "../../atoms/communitiesAtom";
+import { communitiesState, Community } from "../../atoms/communitiesAtom";
 import { auth, firestore } from "../../firebase/clientApp";
 import { getMySnippets } from "../../helpers/firestore";
 
 type HeaderProps = {
     communityData: Community;
 };
-
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(authModalState);
-    const [mySnippetsState, setMySnippetsState] = useRecoilState(
-        myCommunitySnippetState
+   
+  // const [mySnippetsState, setMySnippetsState] = useRecoilState(
+  //   myCommunitySnippetState
+  // );
+  const [currCommunityState, setCurrCommunityState] =
+        useRecoilState(communitiesState);
+    const [loading, setLoading] = useState(
+        !currCommunityState.mySnippets.length && !!user
     );
-    const [loading, setLoading] = useState(!mySnippetsState.length && !!user);
-    const isJoined = mySnippetsState.find(
+
+const isJoined = currCommunityState.mySnippets.find(
         (item) => item.communityId === communityData.id
     );
+
     const onJoin = () => {
         if (!user) {
             setAuthModalState({ open: true, view: "login" });
             return;
         }
-
         setLoading(true);
         if (isJoined) {
             leaveCommunity();
@@ -42,7 +45,6 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
         }
         joinCommunity();
     };
-
     const joinCommunity = async () => {
         try {
             const batch = writeBatch(firestore);
@@ -50,56 +52,75 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                 communityId: communityData.id!,
                 isModerator: communityData.creatorId === user?.uid,
             };
-
-              batch.set(
-                    doc(
-                        firestore,
-                        `users/${user?.uid}/communitySnippets`,
-                        communityData.id! // will for sure have this value at this point
-                    ),
-                    newSnippet
-                );
-
+            batch.set(
+                doc(
+                    firestore,
+                    `users/${user?.uid}/communitySnippets`,
+                    communityData.id! // will for sure have this value at this point
+                ),
+                newSnippet
+            );
             batch.update(doc(firestore, "communities", communityData.id!), {
                 numberOfMembers: communityData.numberOfMembers + 1,
             });
-
             // perform batch writes
             await batch.commit();
 
             // Add current community to snippet
-            setMySnippetsState((prev) => [...prev, newSnippet]);
+            setCurrCommunityState((prev) => ({
+                ...prev,
+                mySnippets: [...prev.mySnippets, newSnippet],
+            }));
             setLoading(false);
         } catch (error) {
             console.log("joinCommunity error", error);
         }
     };
+
     const leaveCommunity = async () => {
         try {
-            await deleteDoc(
+      const batch = writeBatch(firestore);
+
+            batch.delete(
                 doc(
                     firestore,
                     `users/${user?.uid}/communitySnippets/${communityData.id}`
                 )
             );
-            // Remove current community from snippet state
-            setMySnippetsState((prev) =>
-                prev.filter((item) => item.communityId !== communityData.id)
-            );
+            
+            batch.update(doc(firestore, "communities", communityData.id!), {
+                numberOfMembers: communityData.numberOfMembers - 1,
+            });
+
+            await batch.commit();
+
+            setCurrCommunityState((prev) => ({
+                ...prev,
+                mySnippets: prev.mySnippets.filter(
+                    (item) => item.communityId !== communityData.id
+                ),
+            }));
             setLoading(false);
         } catch (error) {
             console.log("leaveCommunity error", error);
         }
     };
+
     useEffect(() => {
-        if (!!mySnippetsState.length || !user?.uid) return;
+        if (!!currCommunityState.mySnippets.length || !user?.uid) return;
         setLoading(true);
+        console.log("GETTING SNIPPETS");
+
         getSnippets();
     }, [user]);
+
     const getSnippets = async () => {
         try {
             const snippets = await getMySnippets(user?.uid!);
-            setMySnippetsState(snippets as CommunitySnippet[]);
+            setCurrCommunityState((prev) => ({
+                ...prev,
+                mySnippets: snippets as CommunitySnippet[],
+            }));
             setLoading(false);
         } catch (error) {
             console.log("Error getting user snippets", error);
