@@ -11,7 +11,7 @@ import {
     myCommunitySnippetState,
 } from "../../atoms/myCommunitySnippetsAtom";
 
-import { Community } from "../../atoms/visitedCommunities";
+import { Community } from "../../atoms/communitiesAtom";
 import { auth, firestore } from "../../firebase/clientApp";
 import { getMySnippets } from "../../helpers/firestore";
 

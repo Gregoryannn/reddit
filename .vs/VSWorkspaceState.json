@@ -3,10 +3,15 @@
     "",
     "\\functions",
     "\\functions\\src",
+    "\\functions\\src\\components",
+    "\\functions\\src\\components\\Community",
+    "\\functions\\src\\components\\Modal",
+    "\\functions\\src\\components\\Modal\\CreateCommunity",
+    "\\functions\\src\\components\\Post",
     "\\functions\\src\\pages",
     "\\functions\\src\\pages\\r",
     "\\functions\\src\\pages\\r\\[community]"
   ],
-  "SelectedNode": "\\functions\\src\\pages\\r\\[community]\\submit.tsx",
+  "SelectedNode": "\\functions\\src\\components\\Community\\Header.tsx",
   "PreviewInSolutionExplorer": false
 }
