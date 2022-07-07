@@ -4,7 +4,7 @@ import type { GetServerSidePropsContext, NextPage } from "next";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState } from "recoil";
 import safeJsonStringify from "safe-json-stringify";
-import { communitiesState, Community } from "../../../atoms/communitiesAtom";
+import { Community, communityState } from "../../../atoms/communitiesAtom";
 import About from "../../../components/Community/About";
 import CommunityNotFound from "../../../components/Community/CommunityNotFound";
 import CreatePostLink from "../../../components/Community/CreatePostLink";
@@ -12,13 +12,14 @@ import Header from "../../../components/Community/Header";
 import PageContentLayout from "../../../components/Layout/PageContent";
 import Posts from "../../../components/Post/Posts";
 import { auth, firestore } from "../../../firebase/clientApp";
+
 interface CommunityPageProps {
     communityData: Community;
 }
 const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
     const [user, loadingUser] = useAuthState(auth);
-    const [currCommunitiesState, setCurrCommunitiesState] =
-        useRecoilState(communitiesState);
+    const [currCommunityState, setCurrCommunityState] =
+        useRecoilState(communityState);
 
     useEffect(() => {
         /**
@@ -31,41 +32,42 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
 
         // First time the user has navigated to this community page during session - add to cache
         const firstSessionVisit =
-            !currCommunitiesState.visitedCommunities[communityData.id!];
+        !currCommunityState.visitedCommunities[communityData.id!];
+
         if (firstSessionVisit) {
-            setCurrCommunitiesState((prev) => ({
-                ...prev,
-                visitedCommunities: {
-                    ...prev.visitedCommunities,
-                    [communityData.id!]: communityData,
-                },
-            }));
-        }
-    }, [communityData]);
-    // Community was not found in the database
-    if (!communityData) {
-        return <CommunityNotFound />;
+        setCurrCommunityState((prev) => ({
+                    ...prev,
+                    visitedCommunities: {
+                        ...prev.visitedCommunities,
+                        [communityData.id!]: communityData,
+                    },
+                }));
     }
-    return (
-        <>
-            <Header communityData={communityData} />
-            <PageContentLayout>
-                {/* Left Content */}
-                <>
-                    <CreatePostLink />
-                    <Posts
-                        communityData={communityData}
-                        userId={user?.uid}
-                        loadingUser={loadingUser}
-                    />
-                </>
-                {/* Right Content */}
-                <>
-                    <About communityData={communityData} />
-                </>
-            </PageContentLayout>
-        </>
-    );
+  }, [communityData]);
+// Community was not found in the database
+if (!communityData) {
+    return <CommunityNotFound />;
+}
+return (
+    <>
+        <Header communityData={communityData} />
+        <PageContentLayout>
+            {/* Left Content */}
+            <>
+                <CreatePostLink />
+                <Posts
+                    communityData={communityData}
+                    userId={user?.uid}
+                    loadingUser={loadingUser}
+                />
+            </>
+            {/* Right Content */}
+            <>
+                <About communityData={communityData} />
+            </>
+        </PageContentLayout>
+    </>
+);
 };
 export default CommunityPage;
 export async function getServerSideProps(context: GetServerSidePropsContext) {

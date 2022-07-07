@@ -6,12 +6,12 @@ export interface Community {
     createdAt?: Timestamp;
     numberOfMembers: number;
 }
-
 export interface CommunitySnippet {
     communityId: string;
     isModerator?: boolean;
 }
-interface CommunitiesState {
+
+interface CommunityState {
     [key: string]:
     | CommunitySnippet[]
     | { [key: string]: Community }
@@ -23,20 +23,20 @@ interface CommunitiesState {
     };
     currentCommunity: Community;
 }
-
 const defaultCommunity: Community = {
     id: "",
     creatorId: "",
     numberOfMembers: 0,
 };
 
-export const defaultCommunitiesState: CommunitiesState = {
-    mySnippets: [],
-    visitedCommunities: {},
-    currentCommunity: defaultCommunity,
+export const defaultCommunityState: CommunityState = {
+        mySnippets: [],
+        visitedCommunities: {},
+        currentCommunity: defaultCommunity,
 };
 
-export const communitiesState = atom<CommunitiesState>({
-    key: "communitiesState",
-    default: defaultCommunitiesState,
+ export const communitiesState = atom<CommunitiesState>({
+        export const communityState = atom<CommunityState>({
+            key: "communitiesState",
+            default: defaultCommunityState,
 });

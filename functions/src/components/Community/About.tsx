@@ -16,7 +16,6 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/clientApp";
 import { Community } from "../../atoms/communitiesAtom";
 import moment from "moment";
-
 type AboutProps = {
     communityData: Community;
     pt?: number;
@@ -79,12 +78,14 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                         fontSize="10pt"
                     >
                         <Icon as={RiCakeLine} mr={2} fontSize={18} />
-                        <Text>
-                            Created{" "}
-                              { moment(new Date(communityData.createdAt.seconds * 1000)).format(
-                                    "MMM DD, YYYY"
-                                )}
-                        </Text>
+                          {communityData.createdAt && (
+                            <Text>
+                                Created{" "}
+                                {moment(
+                                    new Date(communityData.createdAt.seconds * 1000)
+                                ).format("MMM DD, YYYY")}
+                            </Text>
+                        )}
                     </Flex>
                     {!onCreatePage && (
                         <Link href={`/r/${router.query.community}/submit`}>

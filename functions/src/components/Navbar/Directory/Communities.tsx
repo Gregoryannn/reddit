@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     Box,
     Flex,
@@ -8,21 +8,16 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-
 import { useAuthState } from "react-firebase-hooks/auth";
 import { FaReddit } from "react-icons/fa";
 import { GrAdd } from "react-icons/gr";
-import { useRecoilState, useRecoilValue } from "recoil";
-import {
-    communitiesState,
-    CommunitySnippet,
-} from "../../../atoms/communitiesAtom";
-
+import { useRecoilValue } from "recoil";
+import { communityState } from "../../../atoms/communitiesAtom";
 import { auth } from "../../../firebase/clientApp";
-import { getMySnippets } from "../../../helpers/firestore";
+import useCommunitySnippets from "../../../hooks/useCommunitySnippets";
 import CreateCommunityModal from "../../Modal/CreateCommunity";
 import MenuListItem from "./MenuListItem";
-import useCommunitySnippets from "../../../hooks/useCommunitySnippets";
+
 
 type CommunitiesProps = {
     menuOpen: boolean;
@@ -30,16 +25,16 @@ type CommunitiesProps = {
 const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
     const [user] = useAuthState(auth);
     const [open, setOpen] = useState(false);
-
     // const [loading, setLoading] = useState(false);
     // const [currCommunitiesState, setCurrCommunitiesState] =
     //   useRecoilState(communitiesState);
 
-    const currCommunitiesState = useRecoilValue(communitiesState);
+    const currCommunitiesState = useRecoilValue(communityState);
     const { snippets, loading, setLoading, error } = useCommunitySnippets(
         user?.uid,
         !user?.uid || !menuOpen,
         [menuOpen, user],
+
         false
     );
 
@@ -54,7 +49,6 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
     //   setLoading(true);
     //   getSnippets();
     // }, [menuOpen, user]);
-
     // const getSnippets = async () => {
     //   try {
     //     const snippets = await getMySnippets(user?.uid!);
@@ -68,7 +62,6 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
     //     console.log("Error getting user snippets", error);
     //   }
     // };
-
     if (loading) {
         return (
             <Stack p={3}>

@@ -1,42 +1,47 @@
-import { collection, getDocs, query } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { myCommunitySnippetState } from "../atoms/myCommunitySnippetsAtom";
-import { firestore } from "../firebase/clientApp";
+import React, { useEffect, useState } from "react";
+import { RecoilState, useRecoilState } from "recoil";
+import { communityState, CommunitySnippet } from "../atoms/communitiesAtom";
+import { getMySnippets } from "../helpers/firestore";
 
-// CURRENTLY NOT USING
-const useCommunitySnippets = (uid?: string, menuOpen?: boolean) => {
-    const [snippetState, setSnippetState] = useRecoilState(
-        myCommunitySnippetState
-    );
-    const [loading, setLoading] = useState(snippetState.length === 0);
+const useCommunitySnippets = (
+    userId: string | undefined,
+    preventFetchConditions: boolean,
+    fetchDeps: any,
+    initLoadingState: boolean
+) => {
+    const [currCommunityState, setCurrCommunityState] =
+    useRecoilState(communityState);
+    const [loading, setLoading] = useState(initLoadingState);
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        if (snippetState.length || !uid || menuOpen === false) return;
+    if (preventFetchConditions || !!currCommunityState.mySnippets.length)
+                return;
+        getSnippets();
 
+        // Check state cache for data; fetch if doesn't exis
+    }, [...fetchDeps]);
+    const getSnippets = async () => {
         setLoading(true);
-        console.log("GETTING VALS");
+        try {
+            const snippets = await getMySnippets(userId!);
+            setCurrCommunityState((prev) => ({
+                    ...prev,
+                    mySnippets: snippets as CommunitySnippet[],
+                }));
+setLoading(false);
+    } catch (error: any) {
+    console.log("Error getting user snippets", error);
+    setError(error.message);
+}
+setLoading(false);
+  };
 
-        getMySnippets();
-    }, [snippetState, uid, menuOpen]);
-
-    const getMySnippets = async () => {
-        const snippetQuery = query(
-            collection(firestore, `users/${uid}/communitySnippets`)
-        );
-
-        const snippetDocs = await getDocs(snippetQuery);
-        const snippets = snippetDocs.docs.map((doc) => ({ ...doc.data() }));
-
-        // setSnippetState((prev) => ({
-        //   ...prev,
-        //   myCommunities: snippets as CommunitySnippet[],
-        // }));
-        setSnippetState(snippets as []);
-        setLoading(false);
-    };
-
-    return { snippetState, loading };
+return {
+    snippets: currCommunityState.mySnippets,
+    loading,
+    setLoading,
+    error,
 };
-
+};
 export default useCommunitySnippets;
