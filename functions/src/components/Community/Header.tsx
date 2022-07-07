@@ -18,26 +18,24 @@ import useCommunitySnippets from "../../hooks/useCommunitySnippets";
 type HeaderProps = {
     communityData: Community;
 };
-
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
-    const [user] = useAuthState(auth);
-    const setAuthModalState = useSetRecoilState(authModalState);
-    const [currCommunityState, setCurrCommunityState] =
-    useRecoilState(communityState);
-    const { loading, setLoading, error } = useCommunitySnippets(
+const [user] = useAuthState(auth);
+const setAuthModalState = useSetRecoilState(authModalState);
+const [communityStateValue, setCommunityStateValue] =
+        useRecoilState(communityState);
+const { loading, setLoading, error } = useCommunitySnippets(
         user?.uid,
         !user?.uid,
         [user],
-
-    !currCommunityState.mySnippets.length && !!user
-
+    !communityStateValue.mySnippets.length && !!user
     );
     // const [loading, setLoading] = useState(
     //   !currCommunityState.mySnippets.length && !!user
+    //   !communityStateValue.mySnippets.length && !!user
     // );
     // const [error, setError] = useState('');
 
-  const isJoined = currCommunityState.mySnippets.find(
+  const isJoined = communityStateValue.mySnippets.find(
         (item) => item.communityId === communityData.id
     );
 
@@ -69,16 +67,17 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                 newSnippet
             );
             batch.update(doc(firestore, "communities", communityData.id!), {
-                numberOfMembers: communityData.numberOfMembers + 1,
+            numberOfMembers: communityData.numberOfMembers + 1,
             });
+
             // perform batch writes
             await batch.commit();
 
             // Add current community to snippet
-               setCurrCommunityState((prev) => ({
+             setCommunityStateValue((prev) => ({
                     ...prev,
                     mySnippets: [...prev.mySnippets, newSnippet],
-               }));
+             }));
 
 setLoading(false);
     } catch (error) {
@@ -99,8 +98,7 @@ const leaveCommunity = async () => {
         });
 
         await batch.commit();
-
-        setCurrCommunityState((prev) => ({
+        setCommunityStateValue((prev) => ({
                 ...prev,
                 mySnippets: prev.mySnippets.filter(
                     (item) => item.communityId !== communityData.id
@@ -137,14 +135,17 @@ setLoading(false);
 // };
 // useEffect(() => {
 //   if (!!currCommunityState.mySnippets.length || !user?.uid) return;
+//   if (!!communityStateValue.mySnippets.length || !user?.uid) return;
 //   setLoading(true);
 //   console.log("GETTING SNIPPETS");
+
 //   getSnippets();
 // }, [user]);
 // const getSnippets = async () => {
 //   try {
 //     const snippets = await getMySnippets(user?.uid!);
 //     setCurrCommunityState((prev) => ({
+//     setCommunityStateValue((prev) => ({
 //       ...prev,
 //       mySnippets: snippets as CommunitySnippet[],
 //     }));

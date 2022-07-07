@@ -20,7 +20,7 @@ import { useRouter } from "next/router";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
-import { communitiesState } from "../../../atoms/communitiesAtom";
+import { communityState } from "../../../atoms/communitiesAtom";
 import { firestore } from "../../../firebase/clientApp";
 import ModalWrapper from "../ModalWrapper";
 
@@ -36,7 +36,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     userId,
     // setSnippetState,
 }) => {
-    const setSnippetState = useSetRecoilState(communitiesState);
+    const setSnippetState = useSetRecoilState(communityState);
     const [name, setName] = useState("");
     const [charsRemaining, setCharsRemaining] = useState(21);
     const [nameError, setNameError] = useState("");
