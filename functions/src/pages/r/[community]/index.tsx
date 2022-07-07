@@ -12,8 +12,6 @@ import Header from "../../../components/Community/Header";
 import PageContentLayout from "../../../components/Layout/PageContent";
 import Posts from "../../../components/Post/Posts";
 import { auth, firestore } from "../../../firebase/clientApp";
-
-
 interface CommunityPageProps {
     communityData: Community;
 }
@@ -21,7 +19,16 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
     const [user, loadingUser] = useAuthState(auth);
     const [currCommunitiesState, setCurrCommunitiesState] =
         useRecoilState(communitiesState);
+
     useEffect(() => {
+        /**
+         * Don't think we need this as we are already storing in visitedCommunities
+         */
+        // setCurrCommunitiesState((prev) => ({
+        //   ...prev,
+        //   currentCommunity: communityData,
+        // }));
+
         // First time the user has navigated to this community page during session - add to cache
         const firstSessionVisit =
             !currCommunitiesState.visitedCommunities[communityData.id!];
@@ -60,7 +67,6 @@ const CommunityPage: NextPage<CommunityPageProps> = ({ communityData }) => {
         </>
     );
 };
-
 export default CommunityPage;
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     console.log("GET SERVER SIDE PROPS RUNNING");
