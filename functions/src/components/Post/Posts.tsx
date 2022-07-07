@@ -166,47 +166,75 @@ const Posts: React.FC<PostsProps> = ({
     // };
 
     const onSelectPost = (post: Post) => {
-        setPostItems((prev) => ({
-            ...prev,
-            selectedPost: post,
-        }));
-        router.push(`/r/${communityData.id}/comments/${post.id}`);
-    };
-    useEffect(() => {
-        setLoading(true);
+        // if (!postItems.postsCache[communityData.id]?.posts) {
+        //   getPosts();
+        //   return;
+        // }
+        if (postItems.postsCache[communityData.id]?.posts) {
+            setPostItems((prev) => ({
+                ...prev,
+                posts: postItems.postsCache[communityData.id].posts,
+            }));
+            setLoading(false);
+        });
+        return;
+    }
+     getPosts();
+
+    // if (!postItems.posts.length) {
+    //   setPostItems((prev) => ({
+    //     ...prev,
+    //     posts: postItems.postsCache[communityData.id].posts,
+    //   }));
+    // }
+    /**
+     * REAL-TIME POST LISTENER
+     * IMPLEMENT AT FIRST THEN CHANGE TO POSTS CACHE
+     */
+    // const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
+    //   const posts = querySnaption.docs.map((post) => ({
+    //     id: post.id,
+    //     ...post.data(),
+    //   }));
+    //   setPostItems((prev) => ({
+    //     ...prev,
+    //     posts: posts as [],
+    //   }));
+    //   setLoading(false);
+    // });
+        // Remove real-time listener on component dismount
+        return () => unsubscribe();
+    }, [communityData]);
+
+const getPosts = async () => {
+    console.log("WE ARE GETTING POSTS!!!");
+
+    setLoading(true);
+    try {
         const postsQuery = query(
             collection(firestore, "posts"),
             where("communityId", "==", communityData.id),
             orderBy("createdAt", "desc")
         );
-        // Real-time post listener
-        const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
-            const posts = querySnaption.docs.map((post) => ({
-                id: post.id,
-                ...post.data(),
-            }));
-            setPostItems((prev) => ({
-                ...prev,
-                posts: posts as [],
-            }));
-            setLoading(false);
-        });
-        // Remove real-time listener on component dismount
-        return () => unsubscribe();
-    }, [communityData]);
-
-    // useEffect(() => {
-    //   if (!userId && !loadingUser) {
-    //     setPostItems((prev) => ({
-    //       ...prev,
-    //       postVotes: [],
-    //     }));
-    //     return;
-    //   }
-    //   if (!userId) return;
-    //   getUserPostVotes();
-    // }, [communityData, userId, loadingUser]);
-
+        const postDocs = await getDocs(postsQuery);
+        const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setPostItems((prev) => ({
+            ...prev,
+            posts: posts as Post[],
+            postsCache: {
+                ...prev.postsCache,
+                [communityData.id]: {
+                    ...prev.postsCache[communityData.id],
+                    posts: posts as Post[],
+                },
+            },
+        }));
+    } catch (error: any) {
+        console.log("getPosts error", error.message);
+    }
+    setLoading(false);
+};
+  // console.log("HERE IS POST STATE", postItems);
     return (
         <>
             {loading ? (
