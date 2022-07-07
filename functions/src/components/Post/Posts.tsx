@@ -241,10 +241,11 @@ const getPosts = async () => {
                 <PostLoader />
             ) : (
                 <Stack>
-                    {postItems.posts.map((post: Post) => (
+                        {postItems.posts.map((post: Post, index) => (
                         <PostItem
                             key={post.id}
                             post={post}
+                            postIdx={index}
                             onVote={onVote}
                             userVoteValue={
                                 postItems.postVotes.find((item) => item.postId === post.id)
