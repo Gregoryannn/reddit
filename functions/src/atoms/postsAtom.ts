@@ -1,6 +1,5 @@
 import { atom } from "recoil";
 import { Timestamp } from "firebase/firestore";
-
 export interface Post {
     id: string;
     communityId: string;
@@ -13,3 +12,8 @@ export interface Post {
     createdAt: Timestamp;
     editedAt: Timestamp;
 }
+
+export const postState = atom({
+    key: "postState",
+    default: [],
+});
