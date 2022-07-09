@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import Rimport React, { useState } from "react";
 import {
     Box,
     Button,
@@ -8,7 +8,6 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { RiCakeLine } from "react-icons/ri";
 import Link from "next/link";
@@ -18,15 +17,14 @@ import { auth } from "../../firebase/clientApp";
 import { Community, communityState } from "../../atoms/communitiesAtom";
 import moment from "moment";
 import { useRecoilValue } from "recoil";
-
 type AboutProps = {
     communityData: Community;
     pt?: number;
     onCreatePage?: boolean;
 };
-
 const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
-
+    const [user] = useAuthState(auth); // will revisit how 'auth' state is passed
+    const router = useRouter();
     // Might add later
     const [description, setDescription] = useState("");
     const [editing, setEditing] = useState(false);
@@ -38,14 +36,15 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                 p={3}
                 color="white"
                 bg="blue.400"
+                borderRadius="4px 4px 0px 0px"
             >
                 <Text fontSize="10pt" fontWeight={700}>
                     About Community
                 </Text>
                 <Icon as={HiOutlineDotsHorizontal} cursor="pointer" />
             </Flex>
-            <Flex direction="column" p={3} bg="white">
-                  { user?.uid === communityData?.creatorId && (
+                <Flex direction="column" p={3} bg="white" borderRadius="0px 0px 4px 4px">
+                    {user?.uid === communityData?.creatorId && (
                         <Box
                             bg="gray.100"
                             width="100%"
@@ -60,27 +59,27 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                             </Text>
                         </Box>
                     )}
-                <Stack spacing={2}>
-                    <Flex width="100%" p={2} fontWeight={600} fontSize="10pt">
-                        <Flex direction="column" flexGrow={1}>
-                            <Text>{communityData?.numberOfMembers}</Text>
-                            <Text>Members</Text>
+                    <Stack spacing={2}>
+                        <Flex width="100%" p={2} fontWeight={600} fontSize="10pt">
+                            <Flex direction="column" flexGrow={1}>
+                                <Text>{communityData?.numberOfMembers}</Text>
+                                <Text>Members</Text>
+                            </Flex>
+                            <Flex direction="column" flexGrow={1}>
+                                <Text>1</Text>
+                                <Text>Online</Text>
+                            </Flex>
                         </Flex>
-                        <Flex direction="column" flexGrow={1}>
-                            <Text>1</Text>
-                            <Text>Online</Text>
-                        </Flex>
-                    </Flex>
-                    <Divider />
-                    <Flex
-                        align="center"
-                        width="100%"
-                        p={1}
-                        fontWeight={500}
-                        fontSize="10pt"
-                    >
-                        <Icon as={RiCakeLine} mr={2} fontSize={18} />
-                          { communityData?.createdAt && (
+                        <Divider />
+                        <Flex
+                            align="center"
+                            width="100%"
+                            p={1}
+                            fontWeight={500}
+                            fontSize="10pt"
+                        >
+                            <Icon as={RiCakeLine} mr={2} fontSize={18} />
+                            {communityData?.createdAt && (
                                 <Text>
                                     Created{" "}
                                     {moment(
@@ -88,16 +87,16 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                                     ).format("MMM DD, YYYY")}
                                 </Text>
                             )}
-                    </Flex>
-                    {!onCreatePage && (
-                        <Link href={`/r/${router.query.community}/submit`}>
-                            <Button mt={3} height="30px">
-                                Create Post
-                            </Button>
-                        </Link>
-                    )}
-                </Stack>
-            </Flex>
+                        </Flex>
+                        {!onCreatePage && (
+                            <Link href={`/r/${router.query.community}/submit`}>
+                                <Button mt={3} height="30px">
+                                    Create Post
+                                </Button>
+                            </Link>
+                        )}
+                    </Stack>
+                </Flex>
         </Box>
     );
 };
