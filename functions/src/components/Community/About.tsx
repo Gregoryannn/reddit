@@ -8,23 +8,25 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
+
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { RiCakeLine } from "react-icons/ri";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/clientApp";
-import { Community } from "../../atoms/communitiesAtom";
+import { Community, communityState } from "../../atoms/communitiesAtom";
 import moment from "moment";
+import { useRecoilValue } from "recoil";
+
 type AboutProps = {
     communityData: Community;
     pt?: number;
     onCreatePage?: boolean;
 };
+
 const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
-    //   if (!communityData) return null;
-    const [user] = useAuthState(auth); // will revisit how 'auth' state is passed
-    const router = useRouter();
+
     // Might add later
     const [description, setDescription] = useState("");
     const [editing, setEditing] = useState(false);
@@ -43,25 +45,25 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                 <Icon as={HiOutlineDotsHorizontal} cursor="pointer" />
             </Flex>
             <Flex direction="column" p={3} bg="white">
-                {user?.uid === communityData.creatorId && (
-                    <Box
-                        bg="gray.100"
-                        width="100%"
-                        p={2}
-                        borderRadius={4}
-                        border="1px solid"
-                        borderColor="gray.300"
-                        cursor="pointer"
-                    >
-                        <Text fontSize="9pt" fontWeight={700} color="blue.500">
-                            Add description
-                        </Text>
-                    </Box>
-                )}
+                  { user?.uid === communityData?.creatorId && (
+                        <Box
+                            bg="gray.100"
+                            width="100%"
+                            p={2}
+                            borderRadius={4}
+                            border="1px solid"
+                            borderColor="gray.300"
+                            cursor="pointer"
+                        >
+                            <Text fontSize="9pt" fontWeight={700} color="blue.500">
+                                Add description
+                            </Text>
+                        </Box>
+                    )}
                 <Stack spacing={2}>
                     <Flex width="100%" p={2} fontWeight={600} fontSize="10pt">
                         <Flex direction="column" flexGrow={1}>
-                            <Text>{communityData.numberOfMembers}</Text>
+                            <Text>{communityData?.numberOfMembers}</Text>
                             <Text>Members</Text>
                         </Flex>
                         <Flex direction="column" flexGrow={1}>
@@ -78,14 +80,14 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                         fontSize="10pt"
                     >
                         <Icon as={RiCakeLine} mr={2} fontSize={18} />
-                          {communityData.createdAt && (
-                            <Text>
-                                Created{" "}
-                                {moment(
-                                    new Date(communityData.createdAt.seconds * 1000)
-                                ).format("MMM DD, YYYY")}
-                            </Text>
-                        )}
+                          { communityData?.createdAt && (
+                                <Text>
+                                    Created{" "}
+                                    {moment(
+                                        new Date(communityData.createdAt.seconds * 1000)
+                                    ).format("MMM DD, YYYY")}
+                                </Text>
+                            )}
                     </Flex>
                     {!onCreatePage && (
                         <Link href={`/r/${router.query.community}/submit`}>
