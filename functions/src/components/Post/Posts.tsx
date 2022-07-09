@@ -148,19 +148,19 @@ const Posts: React.FC<PostsProps> = ({
     //     console.log("getUserPostVotes error", error);
     //   }
     // };
+    const onSelectPost = (post: Post, postIdx: number) => {
+        setPostItems((prev) => ({
+            ...prev,
+            selectedPost: { ...post, postIdx },
+        }));
+        router.push(`/r/${communityData.id}/comments/${post.id}`);
+    };
 
-      const onSelectPost = (post: Post, postIdx: number) => {
-            setPostItems((prev) => ({
-                ...prev,
-                selectedPost: { ...post, listIndex: postIdx },
-            }));
-            router.push(`/r/${communityData.id}/comments/${post.id}`);
-        };
-        useEffect(() => {
-            if (postItems.postsCache[communityData.id]?.posts) {
+    useEffect(() => {
+            if (postItems.postsCache[communityData.id]) {
                 setPostItems((prev) => ({
                     ...prev,
-                    posts: postItems.postsCache[communityData.id].posts,
+                    posts: postItems.postsCache[communityData.id],
                 }));
                 return;
             }
@@ -183,59 +183,56 @@ const Posts: React.FC<PostsProps> = ({
             // Remove real-time listener on component dismount
             // return () => unsubscribe();
         }, [communityData]);
-
         const getPosts = async () => {
-            console.log("WE ARE GETTING POSTS!!!");
-            setLoading(true);
-            try {
-                const postsQuery = query(
-                    collection(firestore, "posts"),
-                    where("communityId", "==", communityData.id),
-                    orderBy("createdAt", "desc")
-                );
-                const postDocs = await getDocs(postsQuery);
-                const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-                setPostItems((prev) => ({
-                    ...prev,
-                    posts: posts as Post[],
-                    postsCache: {
-                        ...prev.postsCache,
-                        [communityData.id]: {
-                            ...prev.postsCache[communityData.id],
-                            posts: posts as Post[],
-                        },
-                    },
-                }));
-            } catch (error: any) {
-                console.log("getPosts error", error.message);
-            }
-            setLoading(false);
-        };
-        // console.log("HERE IS POST STATE", postItems);
-        return (
-            <>
-                {loading ? (
-                    <PostLoader />
-                ) : (
-                    <Stack>
-                        {postItems.posts.map((post: Post, index) => (
-                            <PostItem
-                                key={post.id}
-                                post={post}
-                                postIdx={index}
-                                onVote={onVote}
-                                // userVoteValue={
-                                //   postItems.postVotes.find((item) => item.postId === post.id)
-                                //     ?.voteValue
-                                // }
-                                userVoteValue={post?.currentUserVoteStatus?.voteValue}
-                                onSelectPost={onSelectPost}
-                            />
-                        ))}
-                    </Stack>
-                )}
-            </>
-        );
+        console.log("WE ARE GETTING POSTS!!!");
+        setLoading(true);
+        try {
+            const postsQuery = query(
+                collection(firestore, "posts"),
+                where("communityId", "==", communityData.id),
+                orderBy("createdAt", "desc")
+            );
+            const postDocs = await getDocs(postsQuery);
+            const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            setPostItems((prev) => ({
+                ...prev,
+                posts: posts as Post[],
+                postsCache: {
+                    ...prev.postsCache,
+             
+                    [communityData.id]: posts as Post[],
+                },
+            }));
+        } catch (error: any) {
+            console.log("getPosts error", error.message);
+        }
+        setLoading(false);
     };
+    // console.log("HERE IS POST STATE", postItems);
 
+    return (
+        <>
+            {loading ? (
+                <PostLoader />
+            ) : (
+                <Stack>
+                    {postItems.posts.map((post: Post, index) => (
+                        <PostItem
+                            key={post.id}
+                            post={post}
+                            postIdx={index}
+                            onVote={onVote}
+                            // userVoteValue={
+                            //   postItems.postVotes.find((item) => item.postId === post.id)
+                            //     ?.voteValue
+                            // }
+                            userVoteValue={post?.currentUserVoteStatus?.voteValue}
+                            onSelectPost={onSelectPost}
+                        />
+                    ))}
+                </Stack>
+            )}
+        </>
+    );
+};
 export default Posts;
