@@ -23,7 +23,6 @@ export type PostItemContentProps = {
     onSelectPost?: (value: Post, postIdx: number) => void;
     userVoteValue?: number;
 };
-
 const PostItem: React.FC<PostItemContentProps> = ({
     post,
     postIdx,
@@ -31,14 +30,15 @@ const PostItem: React.FC<PostItemContentProps> = ({
     onSelectPost,
     userVoteValue,
 }) => {
+    const onCommunityPage = !!onSelectPost; // function not passed on [pid] page
     return (
         <Flex
             border="1px solid"
-            borderColor="gray.300"
+            borderColor={onCommunityPage ? "gray.300" : "white"}
             borderRadius={4}
             bg="white"
-            cursor="pointer"
-            _hover={{ borderColor: "gray.500" }}
+            cursor={onCommunityPage ? "pointer" : "unset"}
+            _hover={{ borderColor: onCommunityPage ? "gray.500" : "none" }}
             onClick={() =>
                 onSelectPost && post ? onSelectPost(post, postIdx!) : null
             }
@@ -46,7 +46,7 @@ const PostItem: React.FC<PostItemContentProps> = ({
             <Flex
                 direction="column"
                 align="center"
-                bg="gray.100"
+                bg={onCommunityPage ? "gray.100" : "none"}
                 p={2}
                 borderRadius="3px 0px 0px 3px"
             >

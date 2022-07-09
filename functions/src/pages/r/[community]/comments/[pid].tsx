@@ -11,29 +11,24 @@ import PostLoader from "../../../../components/Post/Loader";
 import PostItem from "../../../../components/Post/PostItem";
 import { firestore } from "../../../../firebase/clientApp";
 import usePosts from "../../../../hooks/usePosts";
+import Comments from "../../../../components/Post/Comments";
 
 type PostPageProps = {};
 
 const PostPage: React.FC<PostPageProps> = () => {
     const router = useRouter();
-    // const [postItems, setPostItems] = useRecoilState(postState);
     const { pid } = router.query;
     const [communityStateValue, setCommunityStateValue] =
         useRecoilState(communityState);
     const { community } = router.query;
-
     const setPostItemState = useSetRecoilState(postState);
-    // console.log("HERE IS POST STATE LOL", postItems);
-
     const { postItems, loading, setLoading, onVote } = usePosts(
         communityStateValue.visitedCommunities[community as string]
     );
-
     const fetchPost = async () => {
         setLoading(true);
         try {
             const postDocRef = doc(firestore, "posts", pid as string);
-
             const postDoc = await getDoc(postDocRef);
             setPostItemState((prev) => ({
                 ...prev,
@@ -44,7 +39,6 @@ const PostPage: React.FC<PostPageProps> = () => {
         }
         setLoading(false);
     };
-
     const getCommunityData = async () => {
         setLoading(true);
         try {
@@ -68,75 +62,63 @@ const PostPage: React.FC<PostPageProps> = () => {
             console.log("getCommunityData error", error.message);
         }
     };
-
     /**
      * Handles the case of refreshing [pid] OR
      * visiting [pid] as a link
      */
     useEffect(() => {
-         const { community, pid } = router.query;
-
-            if (community) {
-                const communityData =
-                    communityStateValue.visitedCommunities[community as string];
-                if (!communityData) {
-                    getCommunityData();
-                    return;
-                }
+        const { community, pid } = router.query;
+        if (community) {
+            const communityData =
+                communityStateValue.visitedCommunities[community as string];
+            if (!communityData) {
+                getCommunityData();
+                return;
             }
-           if (pid && !postItems.selectedPost) {
-                    fetchPost();
-                }
-
-                // Clear selected post state
-                return () => {
-                    setPostItemState((prev) => ({
-                        ...prev,
-                        selectedPost: null,
-                    }));
-                };
-   
-}, [router.query, communityStateValue.visitedCommunities]);
-
-return (
-    <PageContentLayout>
-        {/* Left Content */}
+        }
+        if (pid && !postItems.selectedPost) {
+            fetchPost();
+        }
+        // Clear selected post state
+        return () => {
+            setPostItemState((prev) => ({
+                ...prev,
+                selectedPost: null,
+            }));
+        };
+    }, [router.query, communityStateValue.visitedCommunities]);
+    return (
+        <PageContentLayout>
+            {/* Left Content */}
             <>
-            {loading ? (
-                <PostLoader />
-            ) : (
-                <>
-                    {postItems.selectedPost && (
-                        <PostItem
-                            post={postItems.selectedPost}
-                            postIdx={postItems.selectedPost.postIdx}
-                            onVote={onVote}
-                            userVoteValue={
-                                postItems.selectedPost.currentUserVoteStatus?.voteValue
-                            }
-                        />
-                    )}
-                </>
-            )}
-        </>
-        {/* Right Content */}
-        <>
-            {loading ? (
-                <Stack>
-                    <Skeleton height="20px" />
-                    <Skeleton height="20px" />
-                    <Skeleton height="20px" />
-                </Stack>
-            ) : (
+                {loading ? (
+                    <PostLoader />
+                ) : (
+                    <>
+                        {postItems.selectedPost && (
+                            <PostItem
+                                post={postItems.selectedPost}
+                                postIdx={postItems.selectedPost.postIdx}
+                                onVote={onVote}
+                                userVoteValue={
+                                    postItems.selectedPost.currentUserVoteStatus?.voteValue
+                                }
+                            />
+                        )}
+                        <Comments />
+                    </>
+                )}
+            </>
+            {/* Right Content */}
+            <>
                 <About
                     communityData={
                         communityStateValue.visitedCommunities[community as string]
                     }
+                    loading={loading}
                 />
-            )}
-        </>
-    </PageContentLayout>
-);
+            </>
+        </PageContentLayout>
+    );
 };
-
 export default PostPage;

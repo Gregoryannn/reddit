@@ -1,10 +1,12 @@
-import Rimport React, { useState } from "react";
+import React, { useState } from "react";
 import {
     Box,
     Button,
     Divider,
     Flex,
     Icon,
+    Skeleton,
+    SkeletonCircle,
     Stack,
     Text,
 } from "@chakra-ui/react";
@@ -21,44 +23,61 @@ type AboutProps = {
     communityData: Community;
     pt?: number;
     onCreatePage?: boolean;
+    loading?: boolean;
 };
-const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
-    const [user] = useAuthState(auth); // will revisit how 'auth' state is passed
-    const router = useRouter();
-    // Might add later
-    const [description, setDescription] = useState("");
-    const [editing, setEditing] = useState(false);
-    return (
-        <Box pt={pt}>
-            <Flex
-                justify="space-between"
-                align="center"
-                p={3}
-                color="white"
-                bg="blue.400"
-                borderRadius="4px 4px 0px 0px"
-            >
-                <Text fontSize="10pt" fontWeight={700}>
-                    About Community
-                </Text>
-                <Icon as={HiOutlineDotsHorizontal} cursor="pointer" />
-            </Flex>
+
+const About: React.FC<AboutProps> = ({
+        communityData,
+        pt,
+        onCreatePage,
+        loading,
+    }) => {
+        const [user] = useAuthState(auth); // will revisit how 'auth' state is passed
+        const router = useRouter();
+
+        // Might add later
+        const [description, setDescription] = useState("");
+        const [editing, setEditing] = useState(false);
+        return (
+            <Box pt={pt}>
+                <Flex
+                    justify="space-between"
+                    align="center"
+                    p={3}
+                    color="white"
+                    bg="blue.400"
+                    borderRadius="4px 4px 0px 0px"
+                >
+                    <Text fontSize="10pt" fontWeight={700}>
+                        About Community
+                    </Text>
+                    <Icon as={HiOutlineDotsHorizontal} cursor="pointer" />
+                </Flex>
                 <Flex direction="column" p={3} bg="white" borderRadius="0px 0px 4px 4px">
-                    {user?.uid === communityData?.creatorId && (
-                        <Box
-                            bg="gray.100"
-                            width="100%"
-                            p={2}
-                            borderRadius={4}
-                            border="1px solid"
-                            borderColor="gray.300"
-                            cursor="pointer"
-                        >
-                            <Text fontSize="9pt" fontWeight={700} color="blue.500">
-                                Add description
-                            </Text>
-                        </Box>
-                    )}
+                            <Stack mt={2}>
+                                    <SkeletonCircle size="10" />
+                                    <Skeleton height="10px" />
+                                    <Skeleton height="20px" />
+                                    <Skeleton height="20px" />
+                                    <Skeleton height="20px" />
+                                </Stack>
+                            ) : (
+                                <>
+                                    {user?.uid === communityData?.creatorId && (
+                                        <Box
+                                            bg="gray.100"
+                                            width="100%"
+                                            p={2}
+                                            borderRadius={4}
+                                            border="1px solid"
+                                            borderColor="gray.300"
+                                            cursor="pointer"
+                                        >
+                                            <Text fontSize="9pt" fontWeight={700} color="blue.500">
+                                                Add description
+                                            </Text>
+                                        </Box>
+                                    )}
                     <Stack spacing={2}>
                         <Flex width="100%" p={2} fontWeight={600} fontSize="10pt">
                             <Flex direction="column" flexGrow={1}>
@@ -83,7 +102,7 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                                 <Text>
                                     Created{" "}
                                     {moment(
-                                        new Date(communityData.createdAt.seconds * 1000)
+                                        new Date(communityData.createdAt!.seconds * 1000)
                                     ).format("MMM DD, YYYY")}
                                 </Text>
                             )}
@@ -96,8 +115,10 @@ const About: React.FC<AboutProps> = ({ communityData, pt, onCreatePage }) => {
                             </Link>
                         )}
                     </Stack>
-                </Flex>
-        </Box>
-    );
+                </>
+        )}
+            </Flex>
+    </Box >
+  );
 };
 export default About;
