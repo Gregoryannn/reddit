@@ -29,6 +29,9 @@ const Posts: React.FC<PostsProps> = ({
     userId,
     loadingUser,
 }) => {
+    /**
+     * PART OF INITIAL SOLUTION BEFORE CUSTOM HOOK
+     */
     // const [postItems, setPostItems] = useRecoilState(postState);
     // const [loading, setLoading] = useState(false);
     // const setAuthModalState = useSetRecoilState(authModalState);
@@ -155,35 +158,34 @@ const Posts: React.FC<PostsProps> = ({
         }));
         router.push(`/r/${communityData.id}/comments/${post.id}`);
     };
-
     useEffect(() => {
-            if (postItems.postsCache[communityData.id]) {
-                setPostItems((prev) => ({
-                    ...prev,
-                    posts: postItems.postsCache[communityData.id],
-                }));
-                return;
-            }
-            getPosts();
-            /**
-             * REAL-TIME POST LISTENER
-             * IMPLEMENT AT FIRST THEN CHANGE TO POSTS CACHE
-             */
-            // const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
-            //   const posts = querySnaption.docs.map((post) => ({
-            //     id: post.id,
-            //     ...post.data(),
-            //   }));
-            //   setPostItems((prev) => ({
-            //     ...prev,
-            //     posts: posts as [],
-            //   }));
-            //   setLoading(false);
-            // });
-            // Remove real-time listener on component dismount
-            // return () => unsubscribe();
-        }, [communityData]);
-        const getPosts = async () => {
+        if (postItems.postsCache[communityData.id]) {
+            setPostItems((prev) => ({
+                ...prev,
+                posts: postItems.postsCache[communityData.id],
+            }));
+            return;
+        }
+        getPosts();
+        /**
+         * REAL-TIME POST LISTENER
+         * IMPLEMENT AT FIRST THEN CHANGE TO POSTS CACHE
+         */
+        // const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
+        //   const posts = querySnaption.docs.map((post) => ({
+        //     id: post.id,
+        //     ...post.data(),
+        //   }));
+        //   setPostItems((prev) => ({
+        //     ...prev,
+        //     posts: posts as [],
+        //   }));
+        //   setLoading(false);
+        // });
+        // Remove real-time listener on component dismount
+        // return () => unsubscribe();
+    }, [communityData]);
+    const getPosts = async () => {
         console.log("WE ARE GETTING POSTS!!!");
         setLoading(true);
         try {
@@ -199,7 +201,6 @@ const Posts: React.FC<PostsProps> = ({
                 posts: posts as Post[],
                 postsCache: {
                     ...prev.postsCache,
-             
                     [communityData.id]: posts as Post[],
                 },
             }));
@@ -208,8 +209,6 @@ const Posts: React.FC<PostsProps> = ({
         }
         setLoading(false);
     };
-    // console.log("HERE IS POST STATE", postItems);
-
     return (
         <>
             {loading ? (
@@ -222,11 +221,9 @@ const Posts: React.FC<PostsProps> = ({
                             post={post}
                             postIdx={index}
                             onVote={onVote}
-                            // userVoteValue={
-                            //   postItems.postVotes.find((item) => item.postId === post.id)
-                            //     ?.voteValue
-                            // }
                             userVoteValue={post?.currentUserVoteStatus?.voteValue}
+                            // Indicates that we are on community page
+                            // Can use to conditionally apply styling
                             onSelectPost={onSelectPost}
                         />
                     ))}
