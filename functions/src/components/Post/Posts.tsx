@@ -19,6 +19,7 @@ import { Post, postState, PostVote } from "../../atoms/postsAtom";
 import PostItem from "./PostItem";
 import { useRouter } from "next/router";
 import usePosts from "../../hooks/usePosts";
+
 type PostsProps = {
     communityData: Community;
     userId?: string;
@@ -29,6 +30,7 @@ const Posts: React.FC<PostsProps> = ({
     userId,
     loadingUser,
 }) => {
+
     /**
      * PART OF INITIAL SOLUTION BEFORE CUSTOM HOOK
      */
@@ -36,6 +38,7 @@ const Posts: React.FC<PostsProps> = ({
     // const [loading, setLoading] = useState(false);
     // const setAuthModalState = useSetRecoilState(authModalState);
     // const [error, setError] = useState("");
+
     const router = useRouter();
     const { postItems, setPostItems, loading, setLoading, onVote } =
         usePosts(communityData);
@@ -158,33 +161,37 @@ const Posts: React.FC<PostsProps> = ({
         }));
         router.push(`/r/${communityData.id}/comments/${post.id}`);
     };
+
     useEffect(() => {
-        if (postItems.postsCache[communityData.id]) {
-            setPostItems((prev) => ({
-                ...prev,
-                posts: postItems.postsCache[communityData.id],
-            }));
-            return;
-        }
-        getPosts();
-        /**
-         * REAL-TIME POST LISTENER
-         * IMPLEMENT AT FIRST THEN CHANGE TO POSTS CACHE
-         */
-        // const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
-        //   const posts = querySnaption.docs.map((post) => ({
-        //     id: post.id,
-        //     ...post.data(),
-        //   }));
-        //   setPostItems((prev) => ({
-        //     ...prev,
-        //     posts: posts as [],
-        //   }));
-        //   setLoading(false);
-        // });
-        // Remove real-time listener on component dismount
-        // return () => unsubscribe();
-    }, [communityData]);
+            console.log("INSIDE OF THE UE");
+
+            if (postItems.postsCache[communityData.id]?.length) {
+                setPostItems((prev) => ({
+                    ...prev,
+                    posts: postItems.postsCache[communityData.id],
+                }));
+                return;
+            }
+            getPosts();
+            /**
+             * REAL-TIME POST LISTENER
+             * IMPLEMENT AT FIRST THEN CHANGE TO POSTS CACHE
+             */
+            // const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
+            //   const posts = querySnaption.docs.map((post) => ({
+            //     id: post.id,
+            //     ...post.data(),
+            //   }));
+            //   setPostItems((prev) => ({
+            //     ...prev,
+            //     posts: posts as [],
+            //   }));
+            //   setLoading(false);
+            // });
+            // Remove real-time listener on component dismount
+            // return () => unsubscribe();
+        }, [communityData]);
+
     const getPosts = async () => {
         console.log("WE ARE GETTING POSTS!!!");
         setLoading(true);
@@ -222,8 +229,6 @@ const Posts: React.FC<PostsProps> = ({
                             postIdx={index}
                             onVote={onVote}
                             userVoteValue={post?.currentUserVoteStatus?.voteValue}
-                            // Indicates that we are on community page
-                            // Can use to conditionally apply styling
                             onSelectPost={onSelectPost}
                         />
                     ))}
