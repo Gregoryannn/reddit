@@ -4,11 +4,14 @@
     "\\functions",
     "\\functions\\src",
     "\\functions\\src\\components",
-    "\\functions\\src\\components\\Post",
+    "\\functions\\src\\components\\Navbar\\RightContent\\ProfileMenu",
+    "\\functions\\src\\components\\Post\\PostItem",
+    "\\functions\\src\\hooks",
     "\\functions\\src\\pages",
     "\\functions\\src\\pages\\r",
-    "\\functions\\src\\pages\\r\\[community]"
+    "\\functions\\src\\pages\\r\\[community]",
+    "\\functions\\src\\pages\\r\\[community]\\comments"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Post\\Posts.tsx",
+  "SelectedNode": "\\functions\\src\\hooks\\usePosts.ts",
   "PreviewInSolutionExplorer": false
 }

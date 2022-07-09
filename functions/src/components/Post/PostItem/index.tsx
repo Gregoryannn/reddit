@@ -11,7 +11,6 @@ import {
     IoBookmarkOutline,
 } from "react-icons/io5";
 import { Post } from "../../../atoms/postsAtom";
-
 export type PostItemContentProps = {
     post: Post;
     onVote: (
@@ -21,7 +20,7 @@ export type PostItemContentProps = {
         postIdx?: number
     ) => void;
     postIdx?: number;
-    onSelectPost?: (value: Post) => void;
+    onSelectPost?: (value: Post, postIdx: number) => void;
     userVoteValue?: number;
 };
 
@@ -40,7 +39,9 @@ const PostItem: React.FC<PostItemContentProps> = ({
             bg="white"
             cursor="pointer"
             _hover={{ borderColor: "gray.500" }}
-            onClick={() => (onSelectPost && post ? onSelectPost(post) : null)}
+            onClick={() =>
+                onSelectPost && post ? onSelectPost(post, postIdx!) : null
+            }
         >
             <Flex
                 direction="column"
@@ -68,12 +69,12 @@ const PostItem: React.FC<PostItemContentProps> = ({
                     color={userVoteValue === -1 ? "#4379FF" : "gray.400"}
                     fontSize={22}
                     cursor="pointer"
-                    onClick={(event) => onVote(event, post, 1, postIdx)}
+                    onClick={(event) => onVote(event, post, -1, postIdx)}
                 />
             </Flex>
             <Flex direction="column">
                 <Stack spacing={1} p="10px 10px">
-                 {post.createdAt && (
+                    {post.createdAt && (
                         <Text fontSize="9pt" color="gray.500">
                             Posted by u/{post.userDisplayText}{" "}
                             {moment(new Date(post.createdAt.seconds * 1000)).fromNow()}
@@ -120,5 +121,4 @@ const PostItem: React.FC<PostItemContentProps> = ({
         </Flex>
     );
 };
-
 export default PostItem;
