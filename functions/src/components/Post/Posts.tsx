@@ -10,6 +10,7 @@ import {
     where,
     writeBatch,
 } from "firebase/firestore";
+
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { authModalState } from "../../atoms/authModalAtom";
 import { Community } from "../../atoms/communitiesAtom";
@@ -19,25 +20,30 @@ import { Post, postState, PostVote } from "../../atoms/postsAtom";
 import PostItem from "./PostItem";
 import { useRouter } from "next/router";
 import usePosts from "../../hooks/usePosts";
+
 type PostsProps = {
     communityData: Community;
     userId?: string;
     loadingUser: boolean;
 };
+
 const Posts: React.FC<PostsProps> = ({
     communityData,
     userId,
     loadingUser,
 }) => {
+
     /**
      * PART OF INITIAL SOLUTION BEFORE CUSTOM HOOK
      */
+
     const [postItems, setPostItems] = useRecoilState(postState);
     const [loading, setLoading] = useState(false);
     const setAuthModalState = useSetRecoilState(authModalState);
     const [error, setError] = useState("");
     const router = useRouter();
     const { onVote } = usePosts(communityData);
+
     /**
      * USE ALL BELOW INITIALLY THEN CONVERT TO A CUSTOM HOOK AFTER
      * CREATING THE [PID] PAGE TO EXTRACT REPEATED LOGIC
@@ -162,7 +168,7 @@ const Posts: React.FC<PostsProps> = ({
         console.log("INSIDE OF THE UE");
 
         if (
-            postItems.postsCache[communityData.id]?.length &&
+            postItems.postsCache[communityData.id] &&
             !postItems.postUpdateRequired
         ) {
             setPostItems((prev) => ({
