@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Skeleton, Stack } from "@chakra-ui/react";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -6,11 +7,12 @@ import { Community, communityState } from "../../../../atoms/communitiesAtom";
 import { Post, postState } from "../../../../atoms/postsAtom";
 import About from "../../../../components/Community/About";
 import PageContentLayout from "../../../../components/Layout/PageContent";
-import Comments from "../../../../components/Post/Comments";
 import PostLoader from "../../../../components/Post/Loader";
 import PostItem from "../../../../components/Post/PostItem";
 import { firestore } from "../../../../firebase/clientApp";
 import usePosts from "../../../../hooks/usePosts";
+import Comments from "../../../../components/Post/Comments";
+
 
 type PostPageProps = {};
 
@@ -97,13 +99,14 @@ const PostPage: React.FC<PostPageProps> = () => {
                             <>
                                 <PostItem
                                     post={postItems.selectedPost}
+                                    postIdx={postItems.selectedPost.postIdx}
                                     onVote={onVote}
                                     userVoteValue={
-                                    postItems.postVotes.find(
-                      (item) => item.postId === postItems.selectedPost!.id
-                                )?.voteValue
-                  }
-                />
+                                        postItems.postVotes.find(
+                                            (item) => item.postId === postItems.selectedPost!.id
+                                        )?.voteValue
+                                    }
+                                />
                                 <Comments pid={pid as string} community={community as string} />
                             </>
                         )}

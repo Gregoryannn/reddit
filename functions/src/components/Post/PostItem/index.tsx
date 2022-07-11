@@ -1,4 +1,4 @@
-import React, { ReactPropTypes } from "react";
+import React from "react";
 import { Flex, Icon, Stack, Text } from "@chakra-ui/react";
 import moment from "moment";
 import { BsChat } from "react-icons/bs";
@@ -10,7 +10,9 @@ import {
     IoArrowRedoOutline,
     IoBookmarkOutline,
 } from "react-icons/io5";
+
 import { Post } from "../../../atoms/postsAtom";
+
 export type PostItemContentProps = {
     post: Post;
     onVote: (
@@ -18,7 +20,6 @@ export type PostItemContentProps = {
         post: Post,
         vote: number,
         postIdx?: number
-    vote: number
     ) => void;
     postIdx?: number;
     onSelectPost?: (value: Post, postIdx: number) => void;
@@ -58,7 +59,7 @@ const PostItem: React.FC<PostItemContentProps> = ({
                     color={userVoteValue === 1 ? "brand.100" : "gray.400"}
                     fontSize={22}
                     cursor="pointer"
-                    onClick={(event) => onVote(event, post, 1)}
+                    onClick={(event) => onVote(event, post, 1, postIdx)}
                 />
                 {post.voteStatus}
                 <Icon
@@ -70,7 +71,7 @@ const PostItem: React.FC<PostItemContentProps> = ({
                     color={userVoteValue === -1 ? "#4379FF" : "gray.400"}
                     fontSize={22}
                     cursor="pointer"
-                    onClick={(event) => onVote(event, post, -1)}
+                    onClick={(event) => onVote(event, post, -1, postIdx)}
                 />
             </Flex>
             <Flex direction="column">

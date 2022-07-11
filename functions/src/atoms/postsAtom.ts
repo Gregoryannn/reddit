@@ -30,20 +30,20 @@ interface PostState {
     selectedPost: Post | null;
     posts: Post[];
     postVotes: PostVote[];
-    votesAddedToPosts: boolean;
-    votesFetched: boolean;
     postsCache: {
         [key: string]: Post[];
 
     };
+    postUpdateRequired: boolean;
+
 }
 export const defaultPostState: PostState = {
     selectedPost: null,
     posts: [],
-    votesAddedToPosts: false,
-    votesFetched: false,
     postVotes: [],
     postsCache: {},
+    postUpdateRequired: true,
+
 };
 export const postState = atom({
     key: "postState",
