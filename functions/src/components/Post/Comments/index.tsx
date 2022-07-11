@@ -7,6 +7,7 @@ import {
     SkeletonCircle,
     SkeletonText,
     Stack,
+    Text,
 } from "@chakra-ui/react";
 
 import {
@@ -38,7 +39,7 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
     const [user] = useAuthState(auth);
     const [comment, setComment] = useState("");
     const [comments, setComments] = useState<Comment[]>([]);
-    const [commentFetchLoading, setCommentFetchLoading] = useState(false);
+    const [commentFetchLoading, setCommentFetchLoading] = useState(true);
     const [commentCreateLoading, setCommentCreateLoading] = useState(false);
     const setAuthModalState = useSetRecoilState(authModalState);
     const setPostItemState = useSetRecoilState(postState);
@@ -48,7 +49,6 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
             setAuthModalState({ open: true, view: "login" });
             return;
         }
-
         setCommentCreateLoading(true);
         try {
             const batch = writeBatch(firestore);
@@ -68,13 +68,14 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
             batch.update(doc(firestore, "posts", selectedPost.id), {
                 numberOfComments: increment(1),
             });
+
             await batch.commit();
             setComment("");
             const { id: postId, title } = selectedPost;
             setComments((prev) => [
                 {
                     id: commentDocRef.id,
-                    authorId: user.uid,
+                    creatorId: user.uid,
                     communityId: community,
                     postId,
                     postTitle: title,
@@ -87,7 +88,7 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
             ]);
 
             // Fetch posts again to update number of comments
-            setPostItemState((prev) => ({
+           setPostItemState((prev) => ({
                 ...prev,
                 selectedPost: {
                     ...prev.selectedPost,
@@ -102,7 +103,7 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
     };
 
     const getPostComments = async () => {
-        setCommentFetchLoading(true);
+        // setCommentFetchLoading(true);
         try {
             const commentsQuery = query(
                 collection(firestore, "comments"),
@@ -120,7 +121,6 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
         }
         setCommentFetchLoading(false);
     };
-
     useEffect(() => {
         // get comments
         getPostComments();
@@ -144,7 +144,6 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
                 />
             </Flex>
             <Stack spacing={6} p={2}>
-             
                 {commentFetchLoading ? (
                     <>
                         {[0, 1, 2].map((item) => (
@@ -156,9 +155,26 @@ const Comments: React.FC<CommentsProps> = ({ selectedPost, community }) => {
                     </>
                 ) : (
                     <>
-                        {comments.map((item: Comment) => (
-                            <CommentItem key={item.id} comment={item} />
-                        ))}
+                        {!!comments.length ? (
+                            <>
+                                {comments.map((item: Comment) => (
+                                    <CommentItem key={item.id} comment={item} />
+                                ))}
+                            </>
+                        ) : (
+                            <Flex
+                                direction="column"
+                                justify="center"
+                                align="center"
+                                borderTop="1px solid"
+                                borderColor="gray.200"
+                                p={20}
+                            >
+                                <Text fontWeight={700} opacity={0.3}>
+                                    No Comments Yet
+                                </Text>
+                            </Flex>
+                        )}
                     </>
                 )}
             </Stack>
