@@ -5,10 +5,12 @@
     "\\functions\\src",
     "\\functions\\src\\components",
     "\\functions\\src\\components\\Post",
+    "\\functions\\src\\components\\Post\\Comments",
+    "\\functions\\src\\hooks",
+    "\\functions\\src\\pages",
     "\\functions\\src\\pages\\r",
-    "\\functions\\src\\pages\\r\\[community]",
-    "\\functions\\src\\pages\\r\\[community]\\comments"
+    "\\functions\\src\\pages\\r\\[community]"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Post\\Posts.tsx",
+  "SelectedNode": "\\functions\\src\\components\\Post\\Comments\\CommentItem.tsx",
   "PreviewInSolutionExplorer": false
 }

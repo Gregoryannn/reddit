@@ -1,5 +1,6 @@
 import { atom } from "recoil";
 import { FieldValue, Timestamp } from "firebase/firestore";
+
 export interface Community {
     id: string;
     creatorId: string;

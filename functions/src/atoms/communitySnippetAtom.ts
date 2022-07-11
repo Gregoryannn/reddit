@@ -1,23 +1,42 @@
 import { atom } from "recoil";
+import { FieldValue, Timestamp } from "firebase/firestore";
+export interface Community {
+    id: string;
+    creatorId: string;
+    createdAt?: Timestamp;
+    numberOfMembers: number;
+    privacyType: "public" | "restrictied" | "private";
+}
 
 export interface CommunitySnippet {
     communityId: string;
     isModerator?: boolean;
 }
-
-export interface CommunitySnippetState {
-    myCommunities: CommunitySnippet[];
-    searchResults: CommunitySnippet[];
-    recommended: CommunitySnippet[];
+interface CommunityState {
+    [key: string]:
+    | CommunitySnippet[]
+    | { [key: string]: Community }
+    | Community
+    | undefined;
+    mySnippets: CommunitySnippet[];
+    visitedCommunities: {
+        [key: string]: Community;
+    };
+    currentCommunity: Community;
 }
-
-const defaultSnippetState: CommunitySnippetState = {
-    myCommunities: [],
-    searchResults: [],
-    recommended: [],
+const defaultCommunity: Community = {
+    id: "",
+    creatorId: "",
+    numberOfMembers: 0,
+    privacyType: "public",
 };
 
-export const communitySnippetState = atom({
-    key: "communitySnippetState",
-    default: defaultSnippetState,
+export const defaultCommunityState: CommunityState = {
+    mySnippets: [],
+    visitedCommunities: {},
+    currentCommunity: defaultCommunity,
+};
+export const communityState = atom<CommunityState>({
+    key: "communitiesState",
+    default: defaultCommunityState,
 });
