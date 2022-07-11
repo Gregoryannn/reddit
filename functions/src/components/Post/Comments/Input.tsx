@@ -17,7 +17,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
     user,
     onCreateComment,
 }) => {
-    //   const [comment, setComment] = useState("");
+
     return (
         <Flex direction="column" position="relative">
             <Text mb={1}>
@@ -53,7 +53,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
                     height="26px"
                     disabled={!comment.length}
                     isLoading={loading}
-                    onClick={() => onCreateComment}
+                    onClick={() => onCreateComment(comment)}
                 >
                     Comment
                 </Button>
