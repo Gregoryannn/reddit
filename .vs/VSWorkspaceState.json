@@ -3,13 +3,12 @@
     "",
     "\\functions",
     "\\functions\\src",
-    "\\functions\\src\\components\\Community",
-    "\\functions\\src\\components\\Comunity",
-    "\\functions\\src\\pages",
+    "\\functions\\src\\components",
+    "\\functions\\src\\components\\Post",
     "\\functions\\src\\pages\\r",
     "\\functions\\src\\pages\\r\\[community]",
     "\\functions\\src\\pages\\r\\[community]\\comments"
   ],
-  "SelectedNode": "\\functions\\src\\pages\\r\\[community]\\comments\\[pid].tsx",
+  "SelectedNode": "\\functions\\src\\components\\Post\\Posts.tsx",
   "PreviewInSolutionExplorer": false
 }
