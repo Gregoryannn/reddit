@@ -10,6 +10,7 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { firestore } from "../../../firebase/clientApp";
 import TabItem from "./TabItem";
 import { postState } from "../../../atoms/postsAtom";
+
 const formTabs = [
     {
         title: "Post",
@@ -49,8 +50,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
-    // const setPostItems = useSetRecoilState(postState);
-    const [postItems, setPostItems] = useRecoilState(postState);
+    const setPostItems = useSetRecoilState(postState);
 
     const handleCreatePost = async () => {
         setLoading(true);
@@ -71,11 +71,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
             // Clear the cache to cause a refetch of the posts
             setPostItems((prev) => ({
                 ...prev,
-                // posts: [],
-                // postsCache: {
-                //   ...prev.postsCache,
-                //   [communityId]: [],
-                // },
+               
                 postUpdateRequired: true,
             }));
             router.back();
@@ -84,13 +80,6 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
             setError("Error creating post");
         }
     };
-
-    // useEffect(() => {
-    //   if (postItems.postUpdateRequired) {
-    //     setLoading(false);
-    //     router.back();
-    //   }
-    // }, [postItems.postUpdateRequired]);
 
     const onChange = ({
         target: { name, value },
