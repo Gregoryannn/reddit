@@ -13,7 +13,6 @@ import { firestore } from "../../../../firebase/clientApp";
 import usePosts from "../../../../hooks/usePosts";
 import Comments from "../../../../components/Post/Comments";
 
-
 type PostPageProps = {};
 
 const PostPage: React.FC<PostPageProps> = () => {
@@ -21,110 +20,120 @@ const PostPage: React.FC<PostPageProps> = () => {
     const { community, pid } = router.query;
     const [communityStateValue, setCommunityStateValue] =
         useRecoilState(communityState);
-    const setPostItemState = useSetRecoilState(postState);
-    const { postItems, loading, setLoading, onVote } = usePosts(
-        communityStateValue.visitedCommunities[community as string]
-    );
+
+    // const setPostState = useSetRecoilState(postState);
+
+   
+    const { postStateValue, setPostStateValue, loading, setLoading, onVote } =
+        usePosts(communityStateValue.visitedCommunities[community as string]);
+
     const fetchPost = async () => {
         setLoading(true);
         try {
             const postDocRef = doc(firestore, "posts", pid as string);
+
             const postDoc = await getDoc(postDocRef);
             setPostItemState((prev) => ({
-                ...prev,
-                selectedPost: { id: postDoc.id, ...postDoc.data() } as Post,
-            }));
-        } catch (error: any) {
-            console.log("fetchPost error", error.message);
+                setPostStateValue((prev) => ({
+                    ...prev,
+                    selectedPost: { id: postDoc.id, ...postDoc.data() } as Post,
+                }));
+    } catch (error: any) {
+    console.log("fetchPost error", error.message);
+}
+setLoading(false);
+  };
+const getCommunityData = async () => {
+    setLoading(true);
+    try {
+        const communityDocRef = doc(
+            firestore,
+            "communities",
+            community as string
+        );
+        const communityDoc = await getDoc(communityDocRef);
+        setCommunityStateValue((prev) => ({
+            ...prev,
+            visitedCommunities: {
+                ...prev.visitedCommunities,
+                [community as string]: {
+                    id: communityDoc.id,
+                    ...communityDoc.data(),
+                } as Community,
+            },
+        }));
+    } catch (error: any) {
+        console.log("getCommunityData error", error.message);
+    }
+};
+/**
+ * Handles the case of refreshing [pid] OR
+ * visiting [pid] as a link
+ */
+useEffect(() => {
+    const { community, pid } = router.query;
+    if (community) {
+        const communityData =
+            communityStateValue.visitedCommunities[community as string];
+        if (!communityData) {
+            getCommunityData();
+            return;
         }
-        setLoading(false);
-    };
-    const getCommunityData = async () => {
-        setLoading(true);
-        try {
-            const communityDocRef = doc(
-                firestore,
-                "communities",
-                community as string
-            );
-            const communityDoc = await getDoc(communityDocRef);
-            setCommunityStateValue((prev) => ({
-                ...prev,
-                visitedCommunities: {
-                    ...prev.visitedCommunities,
-                    [community as string]: {
-                        id: communityDoc.id,
-                        ...communityDoc.data(),
-                    } as Community,
-                },
-            }));
-        } catch (error: any) {
-            console.log("getCommunityData error", error.message);
-        }
-    };
-    /**
-     * Handles the case of refreshing [pid] OR
-     * visiting [pid] as a link
-     */
-    useEffect(() => {
-        const { community, pid } = router.query;
-        if (community) {
-            const communityData =
-                communityStateValue.visitedCommunities[community as string];
-            if (!communityData) {
-                getCommunityData();
-                return;
-            }
-        }
-        if (pid && !postItems.selectedPost) {
+    }
+
+        if (pid && !postStateValue.selectedPost) {
             fetchPost();
         }
+
         // Clear selected post state
         return () => {
-            setPostItemState((prev) => ({
-                ...prev,
-                selectedPost: null,
-            }));
+                setPostStateValue((prev) =>({
+                    ...prev,
+                    selectedPost: null,
+                }));
         };
     }, [router.query, communityStateValue.visitedCommunities]);
-    return (
-        <PageContentLayout>
-            {/* Left Content */}
-            <>
-                {loading ? (
-                    <PostLoader />
-                ) : (
-                    <>
-                        {postItems.selectedPost && (
-                            <>
-                                <PostItem
-                                    post={postItems.selectedPost}
-                                    postIdx={postItems.selectedPost.postIdx}
-                                    onVote={onVote}
-                                    userVoteValue={
-                                        postItems.postVotes.find(
-                                            (item) => item.postId === postItems.selectedPost!.id
-                                        )?.voteValue
-                                    }
-                                />
+return (
+    <PageContentLayout>
+        {/* Left Content */}
+        <>
+            {loading ? (
+                <PostLoader />
+            ) : (
+                <>
+                                         {
+                            postStateValue.selectedPost && (
+                                <>
+                                    <PostItem
+                                        post={postStateValue.selectedPost}
+                                        postIdx={postStateValue.selectedPost.postIdx}
+                                        onVote={onVote}
+                                        userVoteValue={
+                                        postStateValue.postVotes.find(
+                                                    (item) => item.postId === postStateValue.selectedPost!.id
+                                                )?.voteValue
+                  }
+                                    />
                                     <Comments
                                         community={community as string}
-                                        selectedPost={postItems.selectedPost}
-                                    />                            </>
-                        )}
-                    </>
-                )}
-            </>
-            {/* Right Content */}
-            <>
-                <About
-                    communityData={
-                        communityStateValue.visitedCommunities[community as string]
-                    }
-                    loading={loading}
-                />
-            </>
-        </PageContentLayout>
-    );
+                                        selectedPost={postStateValue.selectedPost}
+                                    />
+                                </>
+                            )
+                        }
+          </>
+            )}
+        </>
+        {/* Right Content */}
+        <>
+            <About
+                communityData={
+                    communityStateValue.visitedCommunities[community as string]
+                }
+                loading={loading}
+            />
+        </>
+    </PageContentLayout>
+);
 };
 export default PostPage;
