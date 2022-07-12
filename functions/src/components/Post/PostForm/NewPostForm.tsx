@@ -7,6 +7,7 @@ import {
     Input,
     Stack,
     Textarea,
+    Image,
 } from "@chakra-ui/react";
 import { User } from "firebase/auth";
 import {
@@ -25,7 +26,6 @@ import { firestore, storage } from "../../../firebase/clientApp";
 import TabItem from "./TabItem";
 import { postState } from "../../../atoms/postsAtom";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
-
 const formTabs = [
     {
         title: "Post",
@@ -69,135 +69,140 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
     const router = useRouter();
     const setPostItems = useSetRecoilState(postState);
     const handleCreatePost = async () => {
-
         setLoading(true);
         const { title, body } = form;
         try {
-                const postDocRef = await addDoc(collection(firestore, "posts"), {
-                    communityId,
-                    creatorId: user.uid,
-                    userDisplayText: user.email!.split("@")[0],
-                    title,
-                    body,
-                    numberOfComments: 0,
-                    voteStatus: 0,
-                    createdAt: serverTimestamp(),
-                    editedAt: serverTimestamp(),
+            const postDocRef = await addDoc(collection(firestore, "posts"), {
+                communityId,
+                creatorId: user.uid,
+                userDisplayText: user.email!.split("@")[0],
+                title,
+                body,
+                numberOfComments: 0,
+                voteStatus: 0,
+                createdAt: serverTimestamp(),
+                editedAt: serverTimestamp(),
+            });
+            console.log("HERE IS NEW POST ID", postDocRef.id);
+            // // check if selectedFile exists, if it does, do image processing
+            if (selectedFile) {
+                const imageRef = ref(storage, `posts/${postDocRef.id}/image`);
+                await uploadString(imageRef, selectedFile, "data_url");
+                const downloadURL = await getDownloadURL(imageRef);
+                await updateDoc(postDocRef, {
+                    imageURL: downloadURL,
                 });
-
-                console.log("HERE IS NEW POST ID", postDocRef.id);
-
-                // // check if selectedFile exists, if it does, do image processing
-                if(selectedFile) {
-                    const imageRef = ref(storage, `posts/${postDocRef.id}/image`);
-                    await uploadString(imageRef, selectedFile, "data_url");
-                    const downloadURL = await getDownloadURL(imageRef);
-                    await updateDoc(postDocRef, {
-                        imageURL: downloadURL,
-                    });
-                    console.log("HERE IS DOWNLOAD URL", downloadURL);
-                }
-
-      // Clear the cache to cause a refetch of the posts
-      setPostItems((prev) => ({
-    ...prev,
-    postUpdateRequired: true,
-}));
-router.back();
-    } catch (error) {
-    console.log("createPost error", error);
-    setError("Error creating post");
-}
-setLoading(false);
-};
-
-const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const reader = new FileReader();
-    if (event.target.files?.[0]) {
-        reader.readAsDataURL(event.target.files[0]);
-    }
-
-    reader.onload = (readerEvent) => {
-        if (readerEvent.target?.result) {
-            setSelectedFile(readerEvent.target?.result as string);
+                console.log("HERE IS DOWNLOAD URL", downloadURL);
+            }
+            // Clear the cache to cause a refetch of the posts
+            setPostItems((prev) => ({
+                ...prev,
+                postUpdateRequired: true,
+            }));
+            router.back();
+        } catch (error) {
+            console.log("createPost error", error);
+            setError("Error creating post");
         }
+        setLoading(false);
     };
-};
-
-const onChange = ({
-    target: { name, value },
-}: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((prev) => ({
-        ...prev,
-        [name]: value,
-    }));
-};
-return (
-    <Flex direction="column" bg="white" borderRadius={4} mt={2}>
-        <Flex width="100%">
-            {formTabs.map((item, index) => (
-                <TabItem
-                    key={index}
-                    item={item}
-                    selected={item.title === selectedTab}
-                    setSelectedTab={setSelectedTab}
-                />
-            ))}
-        </Flex>
-        <Flex p={4}>
-            {selectedTab === "Post" && (
-                <Stack spacing={3} width="100%">
-                    <Input
-                        name="title"
-                        value={form.title}
-                        onChange={onChange}
-                        _placeholder={{ color: "gray.500" }}
-                        _focus={{
-                            outline: "none",
-                            bg: "white",
-                            border: "1px solid",
-                            borderColor: "black",
-                        }}
-                        fontSize="10pt"
-                        borderRadius={4}
-                        placeholder="Title"
+    const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const reader = new FileReader();
+        if (event.target.files?.[0]) {
+            reader.readAsDataURL(event.target.files[0]);
+        }
+        reader.onload = (readerEvent) => {
+            if (readerEvent.target?.result) {
+                setSelectedFile(readerEvent.target?.result as string);
+            }
+        };
+    };
+    const onChange = ({
+        target: { name, value },
+    }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setForm((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+    return (
+        <Flex direction="column" bg="white" borderRadius={4} mt={2}>
+            <Flex width="100%">
+                {formTabs.map((item, index) => (
+                    <TabItem
+                        key={index}
+                        item={item}
+                        selected={item.title === selectedTab}
+                        setSelectedTab={setSelectedTab}
                     />
-                    <Textarea
-                        name="body"
-                        value={form.body}
-                        onChange={onChange}
-                        fontSize="10pt"
-                        placeholder="Text (optional)"
-                        _placeholder={{ color: "gray.500" }}
-                        _focus={{
-                            outline: "none",
-                            bg: "white",
-                            border: "1px solid",
-                            borderColor: "black",
-                        }}
-                        height="100px"
-                    />
-                    <Flex justify="flex-end">
-                        <Button
-                            height="34px"
-                            padding="0px 30px"
-                            disabled={!form.title}
-                            isLoading={loading}
-                            onClick={handleCreatePost}
-                        >
-                            Post
-                        </Button>
-                    </Flex>
-                </Stack>
-            )}
-            {selectedTab === "Images & Video" && (
+                ))}
+            </Flex>
+            <Flex p={4}>
+                {selectedTab === "Post" && (
+                    <Stack spacing={3} width="100%">
+                        <Input
+                            name="title"
+                            value={form.title}
+                            onChange={onChange}
+                            _placeholder={{ color: "gray.500" }}
+                            _focus={{
+                                outline: "none",
+                                bg: "white",
+                                border: "1px solid",
+                                borderColor: "black",
+                            }}
+                            fontSize="10pt"
+                            borderRadius={4}
+                            placeholder="Title"
+                        />
+                        <Textarea
+                            name="body"
+                            value={form.body}
+                            onChange={onChange}
+                            fontSize="10pt"
+                            placeholder="Text (optional)"
+                            _placeholder={{ color: "gray.500" }}
+                            _focus={{
+                                outline: "none",
+                                bg: "white",
+                                border: "1px solid",
+                                borderColor: "black",
+                            }}
+                            height="100px"
+                        />
+                        <Flex justify="flex-end">
+                            <Button
+                                height="34px"
+                                padding="0px 30px"
+                                disabled={!form.title}
+                                isLoading={loading}
+                                onClick={handleCreatePost}
+                            >
+                                Post
+                            </Button>
+                        </Flex>
+                    </Stack>
+                )}
+                {selectedTab === "Images & Video" && (
                     <Flex direction="column" justify="center" align="center" width="100%">
                         {selectedFile ? (
                             <Flex direction="column" align="center" justify="center">
-                                <img
+                        
+                                    {/* <img
+                  src={selectedFile as string}
+                  style={{ maxWidth: "400px", maxHeight: "400px" }}
+                /> */}
+                <Image
                                     src={selectedFile as string}
-                                    style={{ maxWidth: "400px", maxHeight: "400px" }}
+                                    maxWidth="400px"
+                                    maxHeight="400px"
                                 />
+                                {/* <Image
+                  boxSize="150px"
+                  objectFit="cover"
+                  src="https://bit.ly/dan-abramov"
+                  alt="Dan Abramov"
+                /> */}
                                 <Stack direction="row" mt={4}>
                                     <Button height="28px" onClick={() => setSelectedTab("Post")}>
                                         Back to Post
@@ -239,10 +244,9 @@ return (
                             </Flex>
                         )}
                     </Flex>
-                     )}
-                </Flex>
-             </Flex>
-        );
+                )}
+            </Flex>
+        </Flex>
+    );
 };
-
-xport default NewPostForm;
+export default NewPostForm;
