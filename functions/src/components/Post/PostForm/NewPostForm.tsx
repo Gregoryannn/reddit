@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Flex, Icon, Input, Stack, Textarea } from "@chakra-ui/react";
 import { User } from "firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
@@ -10,7 +10,6 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { firestore } from "../../../firebase/clientApp";
 import TabItem from "./TabItem";
 import { postState } from "../../../atoms/postsAtom";
-
 const formTabs = [
     {
         title: "Post",
@@ -47,11 +46,12 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
         title: "",
         body: "",
     });
+    const [selectedFile, setSelectedFile] = useState();
+    const selectFileRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
     const setPostItems = useSetRecoilState(postState);
-
     const handleCreatePost = async () => {
         setLoading(true);
         const { title, body } = form;
@@ -67,11 +67,9 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
                 createdAt: serverTimestamp(),
                 editedAt: serverTimestamp(),
             });
-
             // Clear the cache to cause a refetch of the posts
             setPostItems((prev) => ({
                 ...prev,
-               
                 postUpdateRequired: true,
             }));
             router.back();
@@ -80,7 +78,6 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
             setError("Error creating post");
         }
     };
-
     const onChange = ({
         target: { name, value },
     }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -100,51 +97,81 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
                         setSelectedTab={setSelectedTab}
                     />
                 ))}
-            </Flex>
-            <Stack p={4} spacing={3}>
-                <Input
-                    name="title"
-                    value={form.title}
-                    onChange={onChange}
-                    _placeholder={{ color: "gray.500" }}
-                    _focus={{
-                        outline: "none",
-                        bg: "white",
-                        border: "1px solid",
-                        borderColor: "black",
-                    }}
-                    fontSize="10pt"
-                    borderRadius={4}
-                    placeholder="Title"
-                />
-                <Textarea
-                    name="body"
-                    value={form.body}
-                    onChange={onChange}
-                    fontSize="10pt"
-                    placeholder="Text (optional)"
-                    _placeholder={{ color: "gray.500" }}
-                    _focus={{
-                        outline: "none",
-                        bg: "white",
-                        border: "1px solid",
-                        borderColor: "black",
-                    }}
-                    height="100px"
-                />
-                <Flex justify="flex-end">
-                    <Button
-                        height="34px"
-                        padding="0px 30px"
-                        disabled={!form.title}
-                        isLoading={loading}
-                        onClick={handleCreatePost}
-                    >
-                        Post
-                    </Button>
+                  <Flex p={4}>
+                        {selectedTab === "Post" && (
+                            <Stack spacing={3} width="100%">
+                                <Input
+                                    name="title"
+                                    value={form.title}
+                                    onChange={onChange}
+                                    _placeholder={{ color: "gray.500" }}
+                                    _focus={{
+                                        outline: "none",
+                                        bg: "white",
+                                        border: "1px solid",
+                                        borderColor: "black",
+                                    }}
+                                    fontSize="10pt"
+                                    borderRadius={4}
+                                    placeholder="Title"
+                                />
+                                <Textarea
+                                    name="body"
+                                    value={form.body}
+                                    onChange={onChange}
+                                    fontSize="10pt"
+                                    placeholder="Text (optional)"
+                                    _placeholder={{ color: "gray.500" }}
+                                    _focus={{
+                                        outline: "none",
+                                        bg: "white",
+                                        border: "1px solid",
+                                        borderColor: "black",
+                                    }}
+                                    height="100px"
+                                />
+                                <Flex justify="flex-end">
+                                    <Button
+                                        height="34px"
+                                        padding="0px 30px"
+                                        disabled={!form.title}
+                                        isLoading={loading}
+                                        onClick={handleCreatePost}
+                                    >
+                                        Post
+                                    </Button>
+                                </Flex>
+                            </Stack>
+                        )}
+                        {selectedTab === "Images & Video" && (
+                            <Flex
+                                justify="center"
+                                align="center"
+                                width="100%"
+                                p={20}
+                                border="1px dashed"
+                                borderColor="gray.200"
+                                borderRadius={4}
+                            >
+                            <Button
+                                variant="outline"
+                                height="28px"
+                                onClick={() => selectFileRef.current?.click()}
+                            >
+                                Upload
+                            </Button>
+                            <input
+                                id="file-upload"
+                                type="file"
+                                accept="image/x-png,image/gif,image/jpeg"
+                                hidden
+                                ref={selectFileRef}
+                            />
+                        </Flex>
+                    )}
                 </Flex>
-            </Stack>
-        </Flex>
-    );
+            </Flex>
+            );
 };
+
 export default NewPostForm;
