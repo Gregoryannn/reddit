@@ -149,71 +149,69 @@ const Posts: React.FC<PostsProps> = ({
     //     console.log("getUserPostVotes error", error);
     //   }
     // };
-
     const onSelectPost = (post: Post, postIdx: number) => {
-            setPostStateValue((prev) => ({
-                ...prev,
-                selectedPost: { ...post, postIdx },
-            }));
-router.push(`/r/${communityData.id}/comments/${post.id}`);
-  };
-useEffect(() => {
-    console.log("INSIDE OF THE UE");
+        setPostStateValue((prev) => ({
+            ...prev,
+            selectedPost: { ...post, postIdx },
+        }));
+        router.push(`/r/${communityData.id}/comments/${post.id}`);
+    };
 
-    if (
+    useEffect(() => {
+
+        if (
             postStateValue.postsCache[communityData.id] &&
             !postStateValue.postUpdateRequired
-    ) {
-        setPostStateValue((prev) =>({
-            ...prev,
-            posts: postStateValue.postsCache[communityData.id],
-        }));
-    return;
-}
-getPosts();
-    /**
-     * REAL-TIME POST LISTENER
-     * IMPLEMENT AT FIRST THEN CHANGE TO POSTS CACHE
-     *
-     * UPDATE - MIGHT KEEP THIS AS CACHE IS TOO COMPLICATED
-     *
-     * LATEST UPDATE - FOUND SOLUTION THAT MEETS IN THE MIDDLE
-     * CACHE POST DATA, BUT REMOVE POSTVOTES CACHE AND HAVE
-     * REAL-TIME LISTENER ON POSTVOTES
-     */
-    // const postsQuery = query(
-    //   collection(firestore, "posts"),
-    //   where("communityId", "==", communityData.id),
-    //   orderBy("createdAt", "desc")
-    // );
-    // const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
-    //   const posts = querySnaption.docs.map((post) => ({
-    //     id: post.id,
-    //     ...post.data(),
-    //   }));
-    //   setPostItems((prev) => ({
-    //     ...prev,
-    //     posts: posts as [],
-    //   }));
-    //   setLoading(false);
-    // });
+        ) {
+            setPostStateValue((prev) => ({
+                ...prev,
+                posts: postStateValue.postsCache[communityData.id],
+            }));
+            return;
+        }
+        getPosts();
+        /**
+         * REAL-TIME POST LISTENER
+         * IMPLEMENT AT FIRST THEN CHANGE TO POSTS CACHE
+         *
+         * UPDATE - MIGHT KEEP THIS AS CACHE IS TOO COMPLICATED
+         *
+         * LATEST UPDATE - FOUND SOLUTION THAT MEETS IN THE MIDDLE
+         * CACHE POST DATA, BUT REMOVE POSTVOTES CACHE AND HAVE
+         * REAL-TIME LISTENER ON POSTVOTES
+         */
+        // const postsQuery = query(
+        //   collection(firestore, "posts"),
+        //   where("communityId", "==", communityData.id),
+        //   orderBy("createdAt", "desc")
+        // );
+        // const unsubscribe = onSnapshot(postsQuery, (querySnaption) => {
+        //   const posts = querySnaption.docs.map((post) => ({
+        //     id: post.id,
+        //     ...post.data(),
+        //   }));
+        //   setPostItems((prev) => ({
+        //     ...prev,
+        //     posts: posts as [],
+        //   }));
+        //   setLoading(false);
+        // });
+        // // Remove real-time listener on component dismount
+        // return () => unsubscribe();
 
-    // // Remove real-time listener on component dismount
-    // return () => unsubscribe();
-  }, [communityData, postStateValue.postUpdateRequired]);
-
-const getPosts = async () => {
-    console.log("WE ARE GETTING POSTS!!!");
-    setLoading(true);
-    try {
-        const postsQuery = query(
-            collection(firestore, "posts"),
-            where("communityId", "==", communityData.id),
-            orderBy("createdAt", "desc")
-        );
-        const postDocs = await getDocs(postsQuery);
-        const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setPostStateValue((prev) => ({
+    }, [communityData, postStateValue.postUpdateRequired]);
+    const getPosts = async () => {
+        console.log("WE ARE GETTING POSTS!!!");
+        setLoading(true);
+        try {
+            const postsQuery = query(
+                collection(firestore, "posts"),
+                where("communityId", "==", communityData.id),
+                orderBy("createdAt", "desc")
+            );
+            const postDocs = await getDocs(postsQuery);
+            const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            setPostStateValue((prev) => ({
                 ...prev,
                 posts: posts as Post[],
                 postsCache: {
@@ -222,34 +220,33 @@ const getPosts = async () => {
                 },
                 postUpdateRequired: false,
             }));
-    } catch (error: any) {
-    console.log("getPosts error", error.message);
-}
-setLoading(false);
-  };
-return (
-    <>
-        {loading ? (
-            <PostLoader />
-        ) : (
-            <Stack>
-                    {
-                        postStateValue.posts.map((post: Post, index) => (
-                            <PostItem
-                                key={post.id}
-                                post={post}
-                                postIdx={index}
-                                onVote={onVote}
-                                userVoteValue={
+        } catch (error: any) {
+            console.log("getPosts error", error.message);
+        }
+        setLoading(false);
+    };
+    return (
+        <>
+            {loading ? (
+                <PostLoader />
+            ) : (
+                <Stack>
+                    {postStateValue.posts.map((post: Post, index) => (
+                        <PostItem
+                            key={post.id}
+                            post={post}
+                            postIdx={index}
+                            onVote={onVote}
+                            userVoteValue={
                                 postStateValue.postVotes.find((item) => item.postId === post.id)
-                            ?.voteValue
-              }
-              onSelectPost = { onSelectPost }
-                    />
-          ))}
-            </Stack>
-        )}
-    </>
-);
+                                    ?.voteValue
+                            }
+                            onSelectPost={onSelectPost}
+                        />
+                    ))}
+                </Stack>
+            )}
+        </>
+    );
 };
 export default Posts;
