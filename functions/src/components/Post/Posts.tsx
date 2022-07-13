@@ -36,7 +36,9 @@ const Posts: React.FC<PostsProps> = ({
     const [loading, setLoading] = useState(false);
     // const setAuthModalState = useSetRecoilState(authModalState);
     const router = useRouter();
-    const { onVote } = usePosts(communityData);
+
+    const { onVote, onDeletePost } = usePosts(communityData);
+
     /**
      * USE ALL BELOW INITIALLY THEN CONVERT TO A CUSTOM HOOK AFTER
      * CREATING THE [PID] PAGE TO EXTRACT REPEATED LOGIC
@@ -156,9 +158,7 @@ const Posts: React.FC<PostsProps> = ({
         }));
         router.push(`/r/${communityData.id}/comments/${post.id}`);
     };
-
     useEffect(() => {
-
         if (
             postStateValue.postsCache[communityData.id] &&
             !postStateValue.postUpdateRequired
@@ -198,7 +198,6 @@ const Posts: React.FC<PostsProps> = ({
         // });
         // // Remove real-time listener on component dismount
         // return () => unsubscribe();
-
     }, [communityData, postStateValue.postUpdateRequired]);
     const getPosts = async () => {
         console.log("WE ARE GETTING POSTS!!!");
@@ -237,10 +236,12 @@ const Posts: React.FC<PostsProps> = ({
                             post={post}
                             postIdx={index}
                             onVote={onVote}
+                            onDeletePost={onDeletePost}
                             userVoteValue={
                                 postStateValue.postVotes.find((item) => item.postId === post.id)
                                     ?.voteValue
                             }
+                            userIsCreator={userId === post.creatorId}
                             onSelectPost={onSelectPost}
                         />
                     ))}

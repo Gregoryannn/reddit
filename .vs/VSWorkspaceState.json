@@ -4,13 +4,13 @@
     "\\functions",
     "\\functions\\src",
     "\\functions\\src\\components",
-    "\\functions\\src\\components\\Community",
-    "\\functions\\src\\components\\Post\\Comments",
-    "\\functions\\src\\hooks",
+    "\\functions\\src\\components\\Post",
+    "\\functions\\src\\components\\Post\\PostForm",
+    "\\functions\\src\\firebase",
     "\\functions\\src\\pages",
     "\\functions\\src\\pages\\r",
     "\\functions\\src\\pages\\r\\[community]"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Community\\CommunityNotFound.tsx",
+  "SelectedNode": "\\functions\\src\\components\\Post\\Posts.tsx",
   "PreviewInSolutionExplorer": false
 }
