@@ -13,19 +13,14 @@ import { auth, firestore } from "../../../../firebase/clientApp";
 import usePosts from "../../../../hooks/usePosts";
 import Comments from "../../../../components/Post/Comments";
 import { useAuthState } from "react-firebase-hooks/auth";
-
-
 type PostPageProps = {};
-
 const PostPage: React.FC<PostPageProps> = () => {
     const [user] = useAuthState(auth);
     const router = useRouter();
     const { community, pid } = router.query;
     const [communityStateValue, setCommunityStateValue] =
         useRecoilState(communityState);
-
     // const setPostState = useSetRecoilState(postState);
-
     const {
         postStateValue,
         setPostStateValue,
@@ -34,7 +29,6 @@ const PostPage: React.FC<PostPageProps> = () => {
         setLoading,
         onVote,
     } = usePosts(communityStateValue.visitedCommunities[community as string]);
-
     const fetchPost = async () => {
         setLoading(true);
         try {
@@ -120,6 +114,7 @@ const PostPage: React.FC<PostPageProps> = () => {
                                     userIsCreator={
                                         user?.uid === postStateValue.selectedPost.creatorId
                                     }
+                                    router={router}
                                 />
                                 <Comments
                                     user={user}
