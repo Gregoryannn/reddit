@@ -1,21 +1,18 @@
 import { useEffect, useState } from "react";
 import { Box, Stack } from "@chakra-ui/react";
-
 import {
     collection,
-    getDocs,
-    query,
-    where,
-    limit,
-    Query,
     DocumentData,
+    getDocs,
+    limit,
+    onSnapshot,
+    query,
     QuerySnapshot,
+    where,
 } from "firebase/firestore";
-
 import type { NextPage } from "next";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useRecoilState } from "recoil";
-import { Post, postState } from "../atoms/postsAtom";
+import { Post, PostVote } from "../atoms/postsAtom";
 import CreatePostLink from "../components/Community/CreatePostLink";
 import PageContentLayout from "../components/Layout/PageContent";
 import PostLoader from "../components/Post/Loader";
@@ -24,14 +21,21 @@ import { auth, firestore } from "../firebase/clientApp";
 import useCommunitySnippets from "../hooks/useCommunitySnippets";
 import usePosts from "../hooks/usePosts";
 
-
 const Home: NextPage = () => {
-    const [user, loadingUser] = useAuthState(auth);
-    const [loading, setLoading] = useState(false);
-    const [postStateValue, setPostStateValue] = useRecoilState(postState);
-    const { onVote, onDeletePost } = usePosts();
-    const { snippets } = useCommunitySnippets();
+const [user, loadingUser] = useAuthState(auth);
+    // const [loading, setLoading] = useState(false);
+    const {
+        postStateValue,
+        setPostStateValue,
+        onVote,
+        onSelectPost,
+        onDeletePost,
+        loading,
+        setLoading,
+    } = usePosts();
+    const { snippets, initSnippetsFetched } = useCommunitySnippets();
 
+    // WILL NEED TO HANDLE CASE OF NO USER
     const getHomePosts = async () => {
         setLoading(true);
         try {
@@ -39,14 +43,10 @@ const Home: NextPage = () => {
              * if snippets has no length (i.e. user not in any communities yet)
              * do query for 20 posts ordered by voteStatus
              */
-
             const myCommunityIds = snippets.map((snippet) => snippet.communityId);
-            console.log("HERE ARE IDS", myCommunityIds);
-
             let postPromises: Array<Promise<QuerySnapshot<DocumentData>>> = [];
             [0, 1, 2].forEach((index) => {
                 if (!myCommunityIds[index]) return;
-
                 postPromises.push(
                     getDocs(
                         query(
@@ -57,12 +57,8 @@ const Home: NextPage = () => {
                     )
                 );
             });
-
             const queryResults = await Promise.all(postPromises);
-            console.log("HERE ARE QUERY RESULTS", queryResults);
-
             const feedPosts: Post[] = [];
-
             queryResults.forEach((result) => {
                 const posts = result.docs.map((doc) => ({
                     id: doc.id,
@@ -70,14 +66,11 @@ const Home: NextPage = () => {
                 })) as Post[];
                 feedPosts.push(...posts);
             });
-
             console.log("HERE ARE FEED POSTS", feedPosts);
-
             setPostStateValue((prev) => ({
                 ...prev,
                 posts: feedPosts,
             }));
-
             // if not in any, get 5 communities ordered by number of members
             // for each one, get 2 posts ordered by voteStatus and set these to postState posts
         } catch (error: any) {
@@ -86,10 +79,44 @@ const Home: NextPage = () => {
         setLoading(false);
     };
 
+    const getUserPostVotes = async () => {
+        const postIds = postStateValue.posts.map((post) => post.id);
+        const postVotesQuery = query(
+            collection(firestore, `users/${user?.uid}/postVotes`),
+            where("postId", "in", postIds)
+        );
+        const unsubscribe = onSnapshot(postVotesQuery, (querySnapshot) => {
+            const postVotes = querySnapshot.docs.map((postVote) => ({
+                id: postVote.id,
+                ...postVote.data(),
+            }));
+
+            setPostStateValue((prev) => ({
+                ...prev,
+                postVotes: postVotes as PostVote[],
+            }));
+        });
+
+        return () => unsubscribe();
+    };
+
     useEffect(() => {
-        if (!snippets.length) return;
+        if (!snippets.length && initSnippetsFetched) return;
         getHomePosts();
-    }, [snippets]);
+    }, [snippets, initSnippetsFetched]);
+
+    useEffect(() => {
+        if (!user?.uid || !postStateValue.posts.length) return;
+        getUserPostVotes();
+
+        // Clear postVotes on dismount
+        return () => {
+            setPostStateValue((prev) => ({
+                ...prev,
+                postVotes: [],
+            }));
+        };
+    }, [postStateValue.posts, user?.uid]);
 
     return (
         <PageContentLayout>
@@ -112,7 +139,7 @@ const Home: NextPage = () => {
                                     )?.voteValue
                                 }
                                 userIsCreator={user?.uid === post.creatorId}
-                            // onSelectPost={onSelectPost}
+                                onSelectPost={onSelectPost}
                             />
                         ))}
                     </Stack>
@@ -124,5 +151,4 @@ const Home: NextPage = () => {
         </PageContentLayout>
     );
 };
-
 export default Home;
