@@ -19,8 +19,10 @@ import { Post, postState, PostVote } from "../../atoms/postsAtom";
 import PostItem from "./PostItem";
 import { useRouter } from "next/router";
 import usePosts from "../../hooks/usePosts";
+
 type PostsProps = {
     communityData: Community;
+    communityData?: Community;
     userId?: string;
     loadingUser: boolean;
 };
@@ -38,6 +40,7 @@ const Posts: React.FC<PostsProps> = ({
     const router = useRouter();
 
     const { onVote, onDeletePost } = usePosts(communityData);
+    const { onVote, onDeletePost } = usePosts(communityData!);
 
     /**
      * USE ALL BELOW INITIALLY THEN CONVERT TO A CUSTOM HOOK AFTER
@@ -156,16 +159,17 @@ const Posts: React.FC<PostsProps> = ({
             ...prev,
             selectedPost: { ...post, postIdx },
         }));
-        router.push(`/r/${communityData.id}/comments/${post.id}`);
+        router.push(`/r/${communityData?.id!}/comments/${post.id}`);
     };
+
     useEffect(() => {
         if (
-            postStateValue.postsCache[communityData.id] &&
+            postStateValue.postsCache[communityData?.id!] &&
             !postStateValue.postUpdateRequired
         ) {
             setPostStateValue((prev) => ({
                 ...prev,
-                posts: postStateValue.postsCache[communityData.id],
+                posts: postStateValue.postsCache[communityData?.id!],
             }));
             return;
         }
@@ -205,7 +209,7 @@ const Posts: React.FC<PostsProps> = ({
         try {
             const postsQuery = query(
                 collection(firestore, "posts"),
-                where("communityId", "==", communityData.id),
+                where("communityId", "==", communityData?.id!),
                 orderBy("createdAt", "desc")
             );
             const postDocs = await getDocs(postsQuery);
@@ -215,7 +219,7 @@ const Posts: React.FC<PostsProps> = ({
                 posts: posts as Post[],
                 postsCache: {
                     ...prev.postsCache,
-                    [communityData.id]: posts as Post[],
+                    [communityData?.id!]: posts as Post[],
                 },
                 postUpdateRequired: false,
             }));

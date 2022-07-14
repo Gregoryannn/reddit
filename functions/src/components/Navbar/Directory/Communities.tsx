@@ -17,8 +17,6 @@ import { auth } from "../../../firebase/clientApp";
 import useCommunitySnippets from "../../../hooks/useCommunitySnippets";
 import CreateCommunityModal from "../../Modal/CreateCommunity";
 import MenuListItem from "./MenuListItem";
-
-
 type CommunitiesProps = {
     menuOpen: boolean;
 };
@@ -30,13 +28,13 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
     //   useRecoilState(communitiesState);
 
     const currCommunitiesState = useRecoilValue(communityState);
-    const { snippets, loading, setLoading, error } = useCommunitySnippets(
-        user?.uid,
-        !user?.uid || !menuOpen,
-        [menuOpen, user],
 
-        false
-    );
+    // const { loading, setLoading, error } = useCommunitySnippets(
+    //   user?.uid,
+    //   [menuOpen, user],
+    //   false,
+    //   !user?.uid || !menuOpen
+    // );
 
     /**
      * USE THIS INITIALLY THEN CONVERT TO CUSTOM HOOK useCommunitySnippets AFTER
@@ -62,15 +60,18 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
     //     console.log("Error getting user snippets", error);
     //   }
     // };
-    if (loading) {
-        return (
-            <Stack p={3}>
-                {Array.from(Array(10)).map((item, index) => (
-                    <Skeleton key={index} height="20px" p="inherit" />
-                ))}
-            </Stack>
-        );
-    }
+
+
+    // if (loading) {
+    //   return (
+    //     <Stack p={3}>
+    //       {Array.from(Array(10)).map((item, index) => (
+    //         <Skeleton key={index} height="20px" p="inherit" />
+    //       ))}
+    //     </Stack>
+    //   );
+    // }
+
     return (
         <>
             <CreateCommunityModal
@@ -81,22 +82,24 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
             {/* COULD DO THIS FOR CLEANER COMPONENTS */}
             {/* <Moderating snippets={snippetState.filter((item) => item.isModerator)} />
       <MyCommunities snippets={snippetState} setOpen={setOpen} /> */}
-            <Box mt={3} mb={4}>
-                <Text pl={3} mb={1} fontSize="7pt" fontWeight={500} color="gray.500">
-                    MODERATING
-                </Text>
-                {currCommunitiesState.mySnippets
-                    .filter((item) => item.isModerator)
-                    .map((snippet) => (
-                        <MenuListItem
-                            key={snippet.communityId}
-                            displayText={`r/${snippet.communityId}`}
-                            link={`/r/${snippet.communityId}`}
-                            icon={FaReddit as typeof Icon}
-                            iconColor="brand.100"
-                        />
-                    ))}
-            </Box>
+            {currCommunitiesState.mySnippets.find((item) => item.isModerator) && (
+                <Box mt={3} mb={4}>
+                    <Text pl={3} mb={1} fontSize="7pt" fontWeight={500} color="gray.500">
+                        MODERATING
+                    </Text>
+                    {currCommunitiesState.mySnippets
+                        .filter((item) => item.isModerator)
+                        .map((snippet) => (
+                            <MenuListItem
+                                key={snippet.communityId}
+                                displayText={`r/${snippet.communityId}`}
+                                link={`/r/${snippet.communityId}`}
+                                icon={FaReddit}
+                                iconColor="brand.100"
+                            />
+                        ))}
+                </Box>
+            )}
             <Box mt={3} mb={4}>
                 <Text pl={3} mb={1} fontSize="7pt" fontWeight={500} color="gray.500">
                     MY COMMUNITIES
@@ -115,7 +118,7 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
                 {currCommunitiesState.mySnippets.map((snippet) => (
                     <MenuListItem
                         key={snippet.communityId}
-                        icon={FaReddit as typeof Icon}
+                        icon={FaReddit}
                         displayText={`r/${snippet.communityId}`}
                         link={`/r/${snippet.communityId}`}
                         iconColor="blue.500"
