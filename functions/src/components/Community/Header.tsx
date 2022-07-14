@@ -13,12 +13,13 @@ import {
 } from "../../atoms/communitiesAtom";
 
 import { auth, firestore } from "../../firebase/clientApp";
-import { getMySnippets } from "../../helpers/firestore";
 import useCommunitySnippets from "../../hooks/useCommunitySnippets";
+
 
 type HeaderProps = {
     communityData: Community;
 };
+
 
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [user] = useAuthState(auth);
@@ -26,17 +27,7 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [communityStateValue, setCommunityStateValue] =
         useRecoilState(communityState);
 
-        // const { loading, setLoading, error } = useCommunitySnippets(
-    //   user?.uid,
-    //   [user],
-    //   !communityStateValue.mySnippets.length && !!user,
-    //   !user?.uid
-    // );
-    // const [loading, setLoading] = useState(
-    //   !communityStateValue.mySnippets.length && !!user
-    // );
-    // const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const { loading, setLoading, error } = useCommunitySnippets();
 
     const isJoined = communityStateValue.mySnippets.find(
         (item) => item.communityId === communityData.id
