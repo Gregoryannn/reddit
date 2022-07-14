@@ -190,12 +190,6 @@ const usePosts = (communityData?: Community) => {
             return () => unsubscribe();
         };
 
-        // const clearUserPostVotes = () => {
-        //   setPostStateValue((prev) => ({
-        //     ...prev,
-        //     postVotes: [],
-        //   }));
-        // }
 
         useEffect(() => {
             if (!user?.uid || !communityData) return;
