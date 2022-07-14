@@ -3,12 +3,13 @@
     "",
     "\\functions",
     "\\functions\\src",
+    "\\functions\\src\\atoms",
     "\\functions\\src\\components",
-    "\\functions\\src\\components\\Post\\PostItem",
-    "\\functions\\src\\pages\\r",
-    "\\functions\\src\\pages\\r\\[community]",
-    "\\functions\\src\\pages\\r\\[community]\\comments"
+    "\\functions\\src\\components\\Navbar",
+    "\\functions\\src\\components\\Post",
+    "\\functions\\src\\components\\Post\\Comments",
+    "\\functions\\src\\components\\Post\\PostItem"
   ],
-  "SelectedNode": "\\functions\\src\\index.ts",
+  "SelectedNode": "\\functions\\src\\components\\Navbar\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
