@@ -3,13 +3,9 @@
     "",
     "\\functions",
     "\\functions\\src",
-    "\\functions\\src\\atoms",
-    "\\functions\\src\\components",
-    "\\functions\\src\\components\\Navbar",
-    "\\functions\\src\\components\\Post",
-    "\\functions\\src\\components\\Post\\Comments",
-    "\\functions\\src\\components\\Post\\PostItem"
+    "\\functions\\src\\hooks",
+    "\\functions\\src\\pages"
   ],
-  "SelectedNode": "\\functions\\src\\components\\Navbar\\index.tsx",
+  "SelectedNode": "\\functions\\src\\hooks\\usePosts.ts",
   "PreviewInSolutionExplorer": false
 }

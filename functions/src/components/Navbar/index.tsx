@@ -3,22 +3,23 @@ import { Box, Flex, Image } from "@chakra-ui/react";
 import { User } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useSetRecoilState } from "recoil";
-
 import {
     defaultMenuItem,
     directoryMenuState,
 } from "../../atoms/directoryMenuAtom";
-
 import { auth } from "../../firebase/clientApp";
 import Directory from "./Directory";
 import RightContent from "./RightContent";
 import SearchInput from "./SearchInput";
 import router from "next/router";
+import useDirectory from "../../hooks/useDirectory";
 
 const Navbar: React.FC = () => {
     const [user] = useAuthState(auth);
+
     // Use <Link> for initial build; implement directory logic near end
-    const setDirectoryState = useSetRecoilState(directoryMenuState);
+    const { onSelectMenuItem } = useDirectory();
+
     return (
         <Flex
             bg="white"
@@ -30,10 +31,7 @@ const Navbar: React.FC = () => {
                 width={{ base: "40px", md: "auto" }}
                 mr={2}
                 cursor="pointer"
-                onClick={() => {
-                    setDirectoryState(defaultMenuItem);
-                    router.push("/");
-                }}
+                onClick={() => onSelectMenuItem(defaultMenuItem)}
             >
                 <Image src="/images/redditlogo.png" height="30px" />
             </Box>
