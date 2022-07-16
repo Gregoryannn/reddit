@@ -3,12 +3,12 @@ import {
     Flex,
     Icon,
     Image,
+    Link,
     Skeleton,
     Spinner,
     Stack,
     Text,
 } from "@chakra-ui/react";
-
 import moment from "moment";
 import { BsChat } from "react-icons/bs";
 import {
@@ -19,8 +19,9 @@ import {
     IoArrowUpCircleSharp,
     IoBookmarkOutline,
 } from "react-icons/io5";
-
 import { AiOutlineDelete } from "react-icons/ai";
+import { BsDot } from "react-icons/bs";
+import { FaReddit } from "react-icons/fa";
 import { Post } from "../../../atoms/postsAtom";
 import { NextRouter } from "next/router";
 
@@ -30,6 +31,7 @@ export type PostItemContentProps = {
         event: React.MouseEvent<SVGElement, MouseEvent>,
         post: Post,
         vote: number,
+        communityId: string,
         postIdx?: number
     ) => void;
     onDeletePost: (post: Post) => Promise<boolean>;
@@ -38,6 +40,7 @@ export type PostItemContentProps = {
     router?: NextRouter;
     postIdx?: number;
     userVoteValue?: number;
+    homePage?: boolean;
 };
 
 const PostItem: React.FC<PostItemContentProps> = ({
@@ -49,13 +52,11 @@ const PostItem: React.FC<PostItemContentProps> = ({
     onDeletePost,
     userVoteValue,
     userIsCreator,
-
+    homePage,
 }) => {
-
     const [loadingImage, setLoadingImage] = useState(true);
     const [loadingDelete, setLoadingDelete] = useState(false);
     const onCommunityPage = !router; // router only passed on [pid] page to redirect back
-
     const handleDelete = async (
         event: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
@@ -63,9 +64,7 @@ const PostItem: React.FC<PostItemContentProps> = ({
         setLoadingDelete(true);
         try {
             const success = await onDeletePost(post);
-
             if (!success) throw new Error("Failed to delete post");
-
             console.log("Post successfully deleted");
             if (router) router.back();
         } catch (error: any) {
@@ -104,7 +103,7 @@ const PostItem: React.FC<PostItemContentProps> = ({
                     color={userVoteValue === 1 ? "brand.100" : "gray.400"}
                     fontSize={22}
                     cursor="pointer"
-                    onClick={(event) => onVote(event, post, 1, postIdx)}
+                    onClick={(event) => onVote(event, post, 1, post.communityId, postIdx)}
                 />
                 {post.voteStatus}
                 <Icon
@@ -116,16 +115,32 @@ const PostItem: React.FC<PostItemContentProps> = ({
                     color={userVoteValue === -1 ? "#4379FF" : "gray.400"}
                     fontSize={22}
                     cursor="pointer"
-                    onClick={(event) => onVote(event, post, -1, postIdx)}
+                    onClick={(event) =>
+                        onVote(event, post, -1, post.communityId, postIdx)
+                    }
                 />
             </Flex>
             <Flex direction="column" width="100%">
                 <Stack spacing={1} p="10px 10px">
                     {post.createdAt && (
-                        <Text fontSize="9pt" color="gray.500">
-                            Posted by u/{post.userDisplayText}{" "}
-                            {moment(new Date(post.createdAt.seconds * 1000)).fromNow()}
-                        </Text>
+                 <Stack direction="row" spacing={0.6} align="center" fontSize="9pt">
+              {homePage && (
+                <>
+                  <Icon as={FaReddit} fontSize={18} mr={1} color="blue.500" />
+                  <Link href={`r/${post.communityId}`}>
+                    <Text
+                      fontWeight={700}
+                      _hover={{ textDecoration: "underline" }}
+                    >{`r/${post.communityId}`}</Text>
+                  </Link>
+                  <Icon as={BsDot} color="gray.500" fontSize={8} />
+                </>
+              )}
+              <Text color="gray.500">
+                Posted by u/{post.userDisplayText}{" "}
+                {moment(new Date(post.createdAt.seconds * 1000)).fromNow()}
+              </Text>
+            </Stack>
                     )}
                     <Text fontSize="12pt" fontWeight={600}>
                         {post.title}
@@ -142,7 +157,6 @@ const PostItem: React.FC<PostItemContentProps> = ({
                                 src={post.imageURL}
                                 display={loadingImage ? "none" : "unset"}
                                 onLoad={() => setLoadingImage(false)}
-                                // src="https://bit.ly/dan-abramov"
                                 alt="Post Image"
                             />
                         </Flex>
