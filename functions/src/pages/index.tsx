@@ -20,6 +20,7 @@ import PostItem from "../components/Post/PostItem";
 import { auth, firestore } from "../firebase/clientApp";
 import usePosts from "../hooks/usePosts";
 import useCommunityData from "../hooks/useCommunityData";
+import Recommendations from "../components/Community/Recommendations";
 
 const Home: NextPage = () => {
     const [user, loadingUser] = useAuthState(auth);
@@ -36,7 +37,6 @@ const Home: NextPage = () => {
     const {
         communityStateValue: { mySnippets, initSnippetsFetched },
     } = useCommunityData();
-
     // WILL NEED TO HANDLE CASE OF NO USER
     const getHomePosts = async () => {
         setLoading(true);
@@ -45,9 +45,7 @@ const Home: NextPage = () => {
              * if snippets has no length (i.e. user not in any communities yet)
              * do query for 20 posts ordered by voteStatus
              */
-
             const myCommunityIds = mySnippets.map((snippet) => snippet.communityId);
-
             let postPromises: Array<Promise<QuerySnapshot<DocumentData>>> = [];
             [0, 1, 2].forEach((index) => {
                 if (!myCommunityIds[index]) return;
@@ -100,55 +98,53 @@ const Home: NextPage = () => {
         });
         return () => unsubscribe();
     };
-
     useEffect(() => {
         if (!mySnippets.length && initSnippetsFetched) return;
         getHomePosts();
-}, [mySnippets, initSnippetsFetched]);
-
-useEffect(() => {
-    if (!user?.uid || !postStateValue.posts.length) return;
-    getUserPostVotes();
-    // Clear postVotes on dismount
-    return () => {
-        setPostStateValue((prev) => ({
-            ...prev,
-            postVotes: [],
-        }));
-    };
-}, [postStateValue.posts, user?.uid]);
-return (
-    <PageContentLayout>
-        <>
-            <CreatePostLink />
-            {loading ? (
-                <PostLoader />
-            ) : (
-                <Stack>
-                    {postStateValue.posts.map((post: Post, index) => (
-                        <PostItem
-                            key={post.id}
-                            post={post}
-                            postIdx={index}
-                            onVote={onVote}
-                            onDeletePost={onDeletePost}
-                            userVoteValue={
-                                postStateValue.postVotes.find(
-                                    (item) => item.postId === post.id
-                                )?.voteValue
-                            }
-                            userIsCreator={user?.uid === post.creatorId}
-                            onSelectPost={onSelectPost}
-                            homePage
-                        />
-                    ))}
-                </Stack>
-            )}
-        </>
-        <>
-            <Box>RHS</Box>
-        </>
-    </PageContentLayout>
-);
+    }, [mySnippets, initSnippetsFetched]);
+    useEffect(() => {
+        if (!user?.uid || !postStateValue.posts.length) return;
+        getUserPostVotes();
+        // Clear postVotes on dismount
+        return () => {
+            setPostStateValue((prev) => ({
+                ...prev,
+                postVotes: [],
+            }));
+        };
+    }, [postStateValue.posts, user?.uid]);
+    return (
+        <PageContentLayout>
+            <>
+                <CreatePostLink />
+                {loading ? (
+                    <PostLoader />
+                ) : (
+                    <Stack>
+                        {postStateValue.posts.map((post: Post, index) => (
+                            <PostItem
+                                key={post.id}
+                                post={post}
+                                postIdx={index}
+                                onVote={onVote}
+                                onDeletePost={onDeletePost}
+                                userVoteValue={
+                                    postStateValue.postVotes.find(
+                                        (item) => item.postId === post.id
+                                    )?.voteValue
+                                }
+                                userIsCreator={user?.uid === post.creatorId}
+                                onSelectPost={onSelectPost}
+                                homePage
+                            />
+                        ))}
+                    </Stack>
+                )}
+            </>
+            <>
+                <Recommendations />
+            </>
+        </PageContentLayout>
+    );
 };
 export default Home;
