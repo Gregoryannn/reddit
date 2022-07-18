@@ -18,11 +18,11 @@ import PageContentLayout from "../components/Layout/PageContent";
 import PostLoader from "../components/Post/Loader";
 import PostItem from "../components/Post/PostItem";
 import { auth, firestore } from "../firebase/clientApp";
-import useCommunitySnippets from "../hooks/useCommunitySnippets";
 import usePosts from "../hooks/usePosts";
+import useCommunityData from "../hooks/useCommunityData";
 
 const Home: NextPage = () => {
-const [user, loadingUser] = useAuthState(auth);
+    const [user, loadingUser] = useAuthState(auth);
     // const [loading, setLoading] = useState(false);
     const {
         postStateValue,
@@ -33,7 +33,9 @@ const [user, loadingUser] = useAuthState(auth);
         loading,
         setLoading,
     } = usePosts();
-    const { snippets, initSnippetsFetched } = useCommunitySnippets();
+    const {
+        communityStateValue: { mySnippets, initSnippetsFetched },
+    } = useCommunityData();
 
     // WILL NEED TO HANDLE CASE OF NO USER
     const getHomePosts = async () => {
@@ -43,7 +45,9 @@ const [user, loadingUser] = useAuthState(auth);
              * if snippets has no length (i.e. user not in any communities yet)
              * do query for 20 posts ordered by voteStatus
              */
-            const myCommunityIds = snippets.map((snippet) => snippet.communityId);
+
+            const myCommunityIds = mySnippets.map((snippet) => snippet.communityId);
+
             let postPromises: Array<Promise<QuerySnapshot<DocumentData>>> = [];
             [0, 1, 2].forEach((index) => {
                 if (!myCommunityIds[index]) return;
@@ -78,7 +82,6 @@ const [user, loadingUser] = useAuthState(auth);
         }
         setLoading(false);
     };
-
     const getUserPostVotes = async () => {
         const postIds = postStateValue.posts.map((post) => post.id);
         const postVotesQuery = query(
@@ -90,65 +93,62 @@ const [user, loadingUser] = useAuthState(auth);
                 id: postVote.id,
                 ...postVote.data(),
             }));
-
             setPostStateValue((prev) => ({
                 ...prev,
                 postVotes: postVotes as PostVote[],
             }));
         });
-
         return () => unsubscribe();
     };
 
     useEffect(() => {
-        if (!snippets.length && initSnippetsFetched) return;
+        if (!mySnippets.length && initSnippetsFetched) return;
         getHomePosts();
-    }, [snippets, initSnippetsFetched]);
+}, [mySnippets, initSnippetsFetched]);
 
-    useEffect(() => {
-        if (!user?.uid || !postStateValue.posts.length) return;
-        getUserPostVotes();
-
-        // Clear postVotes on dismount
-        return () => {
-            setPostStateValue((prev) => ({
-                ...prev,
-                postVotes: [],
-            }));
-        };
-    }, [postStateValue.posts, user?.uid]);
-
-    return (
-        <PageContentLayout>
-            <>
-                <CreatePostLink />
-                {loading ? (
-                    <PostLoader />
-                ) : (
-                    <Stack>
-                        {postStateValue.posts.map((post: Post, index) => (
-                            <PostItem
-                                key={post.id}
-                                post={post}
-                                postIdx={index}
-                                onVote={onVote}
-                                onDeletePost={onDeletePost}
-                                userVoteValue={
-                                    postStateValue.postVotes.find(
-                                        (item) => item.postId === post.id
-                                    )?.voteValue
-                                }
-                                userIsCreator={user?.uid === post.creatorId}
-                                onSelectPost={onSelectPost}
-                            />
-                        ))}
-                    </Stack>
-                )}
-            </>
-            <>
-                <Box>RHS</Box>
-            </>
-        </PageContentLayout>
-    );
+useEffect(() => {
+    if (!user?.uid || !postStateValue.posts.length) return;
+    getUserPostVotes();
+    // Clear postVotes on dismount
+    return () => {
+        setPostStateValue((prev) => ({
+            ...prev,
+            postVotes: [],
+        }));
+    };
+}, [postStateValue.posts, user?.uid]);
+return (
+    <PageContentLayout>
+        <>
+            <CreatePostLink />
+            {loading ? (
+                <PostLoader />
+            ) : (
+                <Stack>
+                    {postStateValue.posts.map((post: Post, index) => (
+                        <PostItem
+                            key={post.id}
+                            post={post}
+                            postIdx={index}
+                            onVote={onVote}
+                            onDeletePost={onDeletePost}
+                            userVoteValue={
+                                postStateValue.postVotes.find(
+                                    (item) => item.postId === post.id
+                                )?.voteValue
+                            }
+                            userIsCreator={user?.uid === post.creatorId}
+                            onSelectPost={onSelectPost}
+                            homePage
+                        />
+                    ))}
+                </Stack>
+            )}
+        </>
+        <>
+            <Box>RHS</Box>
+        </>
+    </PageContentLayout>
+);
 };
 export default Home;

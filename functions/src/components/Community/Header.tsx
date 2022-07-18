@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Box, Button, Flex, Icon, Text } from "@chakra-ui/react";
 import { doc, writeBatch } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -14,20 +14,22 @@ import {
 
 import { auth, firestore } from "../../firebase/clientApp";
 import useCommunitySnippets from "../../hooks/useCommunitySnippets";
-
+import useCommunityData from "../../hooks/useCommunityData";
 
 type HeaderProps = {
     communityData: Community;
 };
-
-
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(authModalState);
     const [communityStateValue, setCommunityStateValue] =
         useRecoilState(communityState);
 
-    const { loading, setLoading, error } = useCommunitySnippets();
+    /**
+     * !!!Don't pass communityData boolean until the end
+     * It's a small optimization!!!
+     */
+    const { loading, setLoading, error } = useCommunityData(!!communityData);
 
     const isJoined = communityStateValue.mySnippets.find(
         (item) => item.communityId === communityData.id
@@ -98,8 +100,9 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
             console.log("leaveCommunity error", error);
         }
     };
+
     /**
-     * USE THIS INITIALLY THEN CONVERT TO CUSTOM HOOK useCommunitySnippets AFTER
+     * USE THIS INITIALLY THEN CONVERT TO CUSTOM HOOK useCommunityData AFTER
      * ALSO REUSING THE SAME LOGIC INSIDE OF HEADER
      */
     // useEffect(() => {
