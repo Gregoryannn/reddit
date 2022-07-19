@@ -212,7 +212,7 @@ return (
                             justify="center"
                             align="center"
                             borderTop="1px solid"
-                            borderColor="gray.200"
+                            borderColor="gray.100"
                             p={20}
                         >
                             <Text fontWeight={700} opacity={0.3}>
