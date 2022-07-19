@@ -3,10 +3,14 @@
     "",
     "\\functions",
     "\\functions\\src",
-    "\\functions\\src\\components\\Navbar\\Directory",
-    "\\functions\\src\\components\\Post\\PostItem",
+    "\\functions\\src\\components",
+    "\\functions\\src\\hooks",
+    "\\functions\\src\\pages",
+    "\\functions\\src\\pages\\r",
+    "\\functions\\src\\pages\\r\\[community]",
+    "\\functions\\src\\pages\\r\\[community]\\comments",
     "\\pages"
   ],
-  "SelectedNode": "\\pages\\index.tsx",
+  "SelectedNode": "\\functions\\src\\hooks\\usePosts.ts",
   "PreviewInSolutionExplorer": false
 }
