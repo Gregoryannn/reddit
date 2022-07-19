@@ -1,105 +1,104 @@
 import React from "react";
 import { Box, Button, Flex, Icon, Text } from "@chakra-ui/react";
-import { doc, writeBatch } from "firebase/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { FaReddit } from "react-icons/fa";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { authModalState } from "../../atoms/authModalAtom";
-
-import {
-    Community,
-    CommunitySnippet,
-    communityState,
-} from "../../atoms/communitiesAtom";
-
-import { auth, firestore } from "../../firebase/clientApp";
-import useCommunitySnippets from "../../hooks/useCommunitySnippets";
+import { Community } from "../../atoms/communitiesAtom";
 import useCommunityData from "../../hooks/useCommunityData";
 
 type HeaderProps = {
     communityData: Community;
 };
-const Header: React.FC<HeaderProps> = ({ communityData }) => {
-    const [user] = useAuthState(auth);
-    const setAuthModalState = useSetRecoilState(authModalState);
-    const [communityStateValue, setCommunityStateValue] =
-        useRecoilState(communityState);
 
+const Header: React.FC<HeaderProps> = ({ communityData }) => {
+ 
     /**
      * !!!Don't pass communityData boolean until the end
      * It's a small optimization!!!
      */
-    const { loading, setLoading, error } = useCommunityData(!!communityData);
 
-    const isJoined = communityStateValue.mySnippets.find(
+ const { communityStateValue, loading, error, onJoinLeaveCommunity } =
+        useCommunityData(!!communityData);
+
+ const isJoined = !!communityStateValue.mySnippets.find(
         (item) => item.communityId === communityData.id
     );
-    const onJoin = () => {
-        if (!user) {
-            setAuthModalState({ open: true, view: "login" });
-            return;
-        }
-        setLoading(true);
-        if (isJoined) {
-            leaveCommunity();
-            return;
-        }
-        joinCommunity();
-    };
-    const joinCommunity = async () => {
-        try {
-            const batch = writeBatch(firestore);
-            const newSnippet: CommunitySnippet = {
-                communityId: communityData.id!,
-                isModerator: communityData.creatorId === user?.uid,
-            };
-            batch.set(
-                doc(
-                    firestore,
-                    `users/${user?.uid}/communitySnippets`,
-                    communityData.id! // will for sure have this value at this point
-                ),
-                newSnippet
-            );
-            batch.update(doc(firestore, "communities", communityData.id!), {
-                numberOfMembers: communityData.numberOfMembers + 1,
-            });
-            // perform batch writes
-            await batch.commit();
-            // Add current community to snippet
-            setCommunityStateValue((prev) => ({
-                ...prev,
-                mySnippets: [...prev.mySnippets, newSnippet],
-            }));
-            setLoading(false);
-        } catch (error) {
-            console.log("joinCommunity error", error);
-        }
-    };
-    const leaveCommunity = async () => {
-        try {
-            const batch = writeBatch(firestore);
-            batch.delete(
-                doc(
-                    firestore,
-                    `users/${user?.uid}/communitySnippets/${communityData.id}`
-                )
-            );
-            batch.update(doc(firestore, "communities", communityData.id!), {
-                numberOfMembers: communityData.numberOfMembers - 1,
-            });
-            await batch.commit();
-            setCommunityStateValue((prev) => ({
-                ...prev,
-                mySnippets: prev.mySnippets.filter(
-                    (item) => item.communityId !== communityData.id
-                ),
-            }));
-            setLoading(false);
-        } catch (error) {
-            console.log("leaveCommunity error", error);
-        }
-    };
+
+    // const onJoin = () => {
+    //   if (!user) {
+    //     setAuthModalState({ open: true, view: "login" });
+    //     return;
+    //   }
+
+    //   setLoading(true);
+    //   if (isJoined) {
+    //     leaveCommunity();
+    //     return;
+    //   }
+    //   joinCommunity();
+    // };
+
+    // const joinCommunity = async () => {
+    //   try {
+    //     const batch = writeBatch(firestore);
+
+    //     const newSnippet: CommunitySnippet = {
+    //       communityId: communityData.id!,
+    //       isModerator: communityData.creatorId === user?.uid,
+    //     };
+    //     batch.set(
+    //       doc(
+    //         firestore,
+    //         `users/${user?.uid}/communitySnippets`,
+    //         communityData.id! // will for sure have this value at this point
+    //       ),
+    //       newSnippet
+    //     );
+
+    //     batch.update(doc(firestore, "communities", communityData.id!), {
+    //       numberOfMembers: communityData.numberOfMembers + 1,
+    //     });
+
+    //     // perform batch writes
+    //     await batch.commit();
+
+    //     // Add current community to snippet
+    //     setCommunityStateValue((prev) => ({
+    //       ...prev,
+    //       mySnippets: [...prev.mySnippets, newSnippet],
+    //     }));
+    //     setLoading(false);
+    //   } catch (error) {
+    //     console.log("joinCommunity error", error);
+    //   }
+    // };
+
+    // const leaveCommunity = async () => {
+    //   try {
+    //     const batch = writeBatch(firestore);
+
+    //     batch.delete(
+    //       doc(
+    //         firestore,
+    //         `users/${user?.uid}/communitySnippets/${communityData.id}`
+    //       )
+    //     );
+
+    //     batch.update(doc(firestore, "communities", communityData.id!), {
+    //       numberOfMembers: communityData.numberOfMembers - 1,
+    //     });
+
+    //     await batch.commit();
+
+    //     setCommunityStateValue((prev) => ({
+    //       ...prev,
+    //       mySnippets: prev.mySnippets.filter(
+    //         (item) => item.communityId !== communityData.id
+    //       ),
+    //     }));
+    //     setLoading(false);
+    //   } catch (error) {
+    //     console.log("leaveCommunity error", error);
+    //   }
+    // };
 
     /**
      * USE THIS INITIALLY THEN CONVERT TO CUSTOM HOOK useCommunityData AFTER
@@ -172,7 +171,7 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                                 height="30px"
                                 pr={6}
                                 pl={6}
-                                onClick={onJoin}
+                                onClick={() => onJoinLeaveCommunity(communityData.id, isJoined)}
                                 isLoading={loading}
                             >
                                 {isJoined ? "Joined" : "Join"}

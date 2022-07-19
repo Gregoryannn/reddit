@@ -1,32 +1,34 @@
-import { doc, getDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { doc, getDoc, increment, writeBatch } from "firebase/firestore";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { RecoilState, useRecoilState } from "recoil";
 
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { authModalState } from "../atoms/authModalAtom";
 import {
-    communityState,
-    CommunitySnippet,
     Community,
+    CommunitySnippet,
+    communityState,
 } from "../atoms/communitiesAtom";
+
 import { auth, firestore } from "../firebase/clientApp";
 import { getMySnippets } from "../helpers/firestore";
 
 // Add ssrCommunityData near end as small optimization
+
 const useCommunityData = (ssrCommunityData?: boolean) => {
     const [user] = useAuthState(auth);
     const router = useRouter();
     const [communityStateValue, setCommunityStateValue] =
         useRecoilState(communityState);
+    const setAuthModalState = useSetRecoilState(authModalState);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
         if (!user || !!communityStateValue.mySnippets.length) return;
-
         getSnippets();
     }, [user]);
-
     const getSnippets = async () => {
         setLoading(true);
         try {
@@ -43,12 +45,10 @@ const useCommunityData = (ssrCommunityData?: boolean) => {
         }
         setLoading(false);
     };
-
     const getCommunityData = async (communityId: string) => {
         // this causes weird memory leak error - not sure why
         // setLoading(true);
         console.log("GETTING COMMUNITY DATA");
-
         try {
             const communityDocRef = doc(
                 firestore,
@@ -72,6 +72,83 @@ const useCommunityData = (ssrCommunityData?: boolean) => {
         setLoading(false);
     };
 
+    const onJoinLeaveCommunity = (communityId: string, isJoined?: boolean) => {
+        console.log("ON JOIN LEAVE", communityId);
+
+        if (!user) {
+            setAuthModalState({ open: true, view: "login" });
+            return;
+        }
+
+        setLoading(true);
+        if (isJoined) {
+            leaveCommunity(communityId);
+            return;
+        }
+        joinCommunity(communityId);
+    };
+
+    const joinCommunity = async (communityId: string) => {
+        console.log("JOINING COMMUNITY: ", communityId);
+        try {
+            const batch = writeBatch(firestore);
+
+            const newSnippet: CommunitySnippet = {
+                communityId,
+            };
+            batch.set(
+                doc(
+                    firestore,
+                    `users/${user?.uid}/communitySnippets`,
+                    communityId // will for sure have this value at this point
+                ),
+                newSnippet
+            );
+
+            batch.update(doc(firestore, "communities", communityId), {
+                numberOfMembers: increment(1),
+            });
+
+            // perform batch writes
+            await batch.commit();
+
+            // Add current community to snippet
+            setCommunityStateValue((prev) => ({
+                ...prev,
+                mySnippets: [...prev.mySnippets, newSnippet],
+            }));
+        } catch (error) {
+            console.log("joinCommunity error", error);
+        }
+        setLoading(false);
+    };
+
+    const leaveCommunity = async (communityId: string) => {
+        try {
+            const batch = writeBatch(firestore);
+
+            batch.delete(
+                doc(firestore, `users/${user?.uid}/communitySnippets/${communityId}`)
+            );
+
+            batch.update(doc(firestore, "communities", communityId), {
+                numberOfMembers: increment(-1),
+            });
+
+            await batch.commit();
+
+            setCommunityStateValue((prev) => ({
+                ...prev,
+                mySnippets: prev.mySnippets.filter(
+                    (item) => item.communityId !== communityId
+                ),
+            }));
+        } catch (error) {
+            console.log("leaveCommunity error", error);
+        }
+        setLoading(false);
+    };
+
     useEffect(() => {
         if (ssrCommunityData) return;
         const { community } = router.query;
@@ -87,12 +164,10 @@ const useCommunityData = (ssrCommunityData?: boolean) => {
 
     return {
         communityStateValue,
-        // snippets: communityStateValue.mySnippets,
-        // initSnippetsFetched: communityStateValue.initSnippetsFetched,
+        onJoinLeaveCommunity,
         loading,
         setLoading,
         error,
     };
 };
-
 export default useCommunityData;
