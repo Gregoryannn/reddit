@@ -9,6 +9,7 @@ import {
     where,
     writeBatch,
 } from "firebase/firestore";
+
 import { deleteObject, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -17,6 +18,7 @@ import { Community } from "../atoms/communitiesAtom";
 import { Post, postState, PostVote } from "../atoms/postsAtom";
 import { auth, firestore, storage } from "../firebase/clientApp";
 import { useRouter } from "next/router";
+
 const usePosts = (communityData?: Community) => {
     const [user, loadingUser] = useAuthState(auth);
     const [postStateValue, setPostStateValue] = useRecoilState(postState);
@@ -25,6 +27,7 @@ const usePosts = (communityData?: Community) => {
     const [error, setError] = useState("");
     const router = useRouter();
     const onSelectPost = (post: Post, postIdx: number) => {
+
         console.log("HERE IS STUFF", post, postIdx);
         setPostStateValue((prev) => ({
             ...prev,
@@ -32,6 +35,7 @@ const usePosts = (communityData?: Community) => {
         }));
         router.push(`/r/${post.communityId}/comments/${post.id}`);
     };
+
     const onVote = async (
         event: React.MouseEvent<SVGElement, MouseEvent>,
         post: Post,
@@ -44,18 +48,24 @@ const usePosts = (communityData?: Community) => {
             setAuthModalState({ open: true, view: "login" });
             return;
         }
+
         const { voteStatus } = post;
+
         // const existingVote = post.currentUserVoteStatus;
+
         const existingVote = postStateValue.postVotes.find(
             (vote) => vote.postId === post.id
         );
+
         // is this an upvote or a downvote?
         // has this user voted on this post already? was it up or down?
+
         try {
             let voteChange = vote;
             const batch = writeBatch(firestore);
             const updatedPost = { ...post };
             const updatedPosts = [...postStateValue.posts];
+
             // New vote
             if (!existingVote) {
                 const newVote: PostVote = {
@@ -67,14 +77,13 @@ const usePosts = (communityData?: Community) => {
                 const postVoteRef = doc(
                     collection(firestore, "users", `${user.uid}/postVotes`)
                 );
+
                 // Needed for frontend state since we're not getting resource back
                 newVote.id = postVoteRef.id;
                 batch.set(postVoteRef, newVote);
+
                 updatedPost.voteStatus = voteStatus + vote;
-                // updatedPost.currentUserVoteStatus = {
-                //   id: postVoteRef.id,
-                //   voteValue: vote,
-                // };
+              
             }
             // Removing existing vote
             else {
@@ -87,18 +96,15 @@ const usePosts = (communityData?: Community) => {
                 // Removing vote
                 if (existingVote.voteValue === vote) {
                     voteChange *= -1;
+
                     updatedPost.voteStatus = voteStatus + -vote;
-                    // delete updatedPost.currentUserVoteStatus;
+
                     batch.delete(postVoteRef);
                 }
                 // Changing vote
                 else {
                     voteChange = 2 * vote;
-                    // We know this will exist here
-                    // updatedPost.currentUserVoteStatus = {
-                    //   id: updatedPost.currentUserVoteStatus?.id!,
-                    //   voteValue: vote,
-                    // };
+
                     updatedPost.voteStatus = voteStatus + 2 * vote;
                     batch.update(postVoteRef, {
                         voteValue: vote,
