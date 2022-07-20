@@ -1,16 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\functions",
-    "\\functions\\src",
-    "\\functions\\src\\components",
-    "\\functions\\src\\hooks",
-    "\\functions\\src\\pages",
-    "\\functions\\src\\pages\\r",
-    "\\functions\\src\\pages\\r\\[community]",
-    "\\functions\\src\\pages\\r\\[community]\\comments",
-    "\\pages"
+    "\\src",
+    "\\src\\components",
+    "\\src\\components\\Post\\PostItem",
+    "\\src\\pages"
   ],
-  "SelectedNode": "\\functions\\src\\hooks\\usePosts.ts",
+  "SelectedNode": "\\src\\pages\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
