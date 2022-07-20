@@ -208,7 +208,6 @@ const Home: NextPage = () => {
                                 userIsCreator={user?.uid === post.creatorId}
                                 onSelectPost={onSelectPost}
                                 homePage
-                                router={router}
                             />
                         ))}
                     </Stack>

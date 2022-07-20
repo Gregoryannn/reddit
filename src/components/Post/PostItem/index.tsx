@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
     Flex,
     Icon,
@@ -9,15 +8,12 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-
 import moment from "moment";
 import { NextRouter } from "next/router";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsChat, BsDot } from "react-icons/bs";
 import { FaReddit } from "react-icons/fa";
-
 import {
-
     IoArrowDownCircleOutline,
     IoArrowDownCircleSharp,
     IoArrowRedoOutline,
@@ -25,8 +21,8 @@ import {
     IoArrowUpCircleSharp,
     IoBookmarkOutline,
 } from "react-icons/io5";
-
 import { Post } from "../../../atoms/postsAtom";
+import Link from "next/link";
 
 export type PostItemContentProps = {
     post: Post;
@@ -45,7 +41,6 @@ export type PostItemContentProps = {
     userVoteValue?: number;
     homePage?: boolean;
 };
-
 const PostItem: React.FC<PostItemContentProps> = ({
     post,
     postIdx,
@@ -56,15 +51,13 @@ const PostItem: React.FC<PostItemContentProps> = ({
     userVoteValue,
     userIsCreator,
     homePage,
-
 }) => {
-
     const [loadingImage, setLoadingImage] = useState(true);
     const [loadingDelete, setLoadingDelete] = useState(false);
-    const singlePostView = !onSelectPost; // router only passed on [pid] page to redirect back
-    const handleDelete = async (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    const singlePostView = !onSelectPost; // function not passed to [pid]
 
+    const handleDelete = async (
+        event: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
         event.stopPropagation();
         setLoadingDelete(true);
@@ -84,17 +77,14 @@ const PostItem: React.FC<PostItemContentProps> = ({
         }
     };
 
-    const onCommunityLinkClick = (
-        event: React.MouseEvent<HTMLParagraphElement>
-    ) => {
-        event.stopPropagation();
-        router?.push(`r/${post.communityId}`);
-    };
-
     return (
         <Flex
             border="1px solid"
             bg="white"
+            borderColor={singlePostView ? "white" : "gray.300"}
+            borderRadius={singlePostView ? "4px 4px 0px 0px" : 4}
+            cursor={singlePostView ? "unset" : "pointer"}
+            _hover={{ borderColor: singlePostView ? "none" : "gray.500" }}
             onClick={() =>
                 onSelectPost && post ? onSelectPost(post, postIdx!) : null
             }
@@ -137,11 +127,13 @@ const PostItem: React.FC<PostItemContentProps> = ({
                             {homePage && (
                                 <>
                                     <Icon as={FaReddit} fontSize={18} mr={1} color="blue.500" />
-                                    <Text
-                                        fontWeight={700}
-                                        _hover={{ textDecoration: "underline" }}
-                                        onClick={onCommunityLinkClick}
-                                    >{`r/${post.communityId}`}</Text>
+                                     <Link href={`r/${post.communityId}`}>
+                                        <Text
+                                            fontWeight={700}
+                                            _hover={{ textDecoration: "underline" }}
+                                            onClick={(event) => event.stopPropagation()}
+                                        >{`r/${post.communityId}`}</Text>
+                                    </Link>
                                     <Icon as={BsDot} color="gray.500" fontSize={8} />
                                 </>
                             )}
