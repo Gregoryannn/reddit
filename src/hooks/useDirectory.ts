@@ -11,18 +11,20 @@ import {
 import { FaReddit } from "react-icons/fa";
 
 const useDirectory = () => {
-const [directoryState, setDirectoryState] =
+    const [directoryState, setDirectoryState] =
     useRecoilState(directoryMenuState);
-const router = useRouter();
-const communityStateValue = useRecoilValue(communityState);
-const onSelectMenuItem = (menuItem: DirectoryMenuItem) => {
-
-      // setState here
+    const router = useRouter();
+    const communityStateValue = useRecoilValue(communityState);
+    const onSelectMenuItem = (menuItem: DirectoryMenuItem) => {
         setDirectoryState((prev) => ({
             ...prev,
             selectedMenuItem: menuItem,
         }));
-        router.push(menuItem.link);
+
+        router?.push(menuItem.link);
+        if (directoryState.isOpen) {
+            toggleMenuOpen();
+        }
     };
 
     const toggleMenuOpen = () => {
@@ -31,15 +33,11 @@ const onSelectMenuItem = (menuItem: DirectoryMenuItem) => {
             isOpen: !directoryState.isOpen,
         }));
     };
-
     useEffect(() => {
         const { community } = router.query;
-
         const existingCommunity =
             communityStateValue.visitedCommunities[community as string];
-
         if (existingCommunity) {
-           
             setDirectoryState((prev) => ({
                 ...prev,
                 selectedMenuItem: {
@@ -51,10 +49,12 @@ const onSelectMenuItem = (menuItem: DirectoryMenuItem) => {
             }));
             return;
         }
-        setDirectoryState(defaultMenuItem);
+        setDirectoryState((prev) => ({
+            ...prev,
+            selectedMenuItem: defaultMenuItem,
+        }));
     }, [router.query?.community, communityStateValue.visitedCommunities]);
 
     return { directoryState, onSelectMenuItem, toggleMenuOpen };
 };
-
 export default useDirectory;
