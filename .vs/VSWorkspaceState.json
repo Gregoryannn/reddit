@@ -3,9 +3,12 @@
     "",
     "\\src",
     "\\src\\components",
+    "\\src\\components\\Community",
+    "\\src\\components\\Navbar\\Directory",
     "\\src\\components\\Post\\PostItem",
+    "\\src\\hooks",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\pages\\index.tsx",
+  "SelectedNode": "\\src\\hooks\\usePosts.ts",
   "PreviewInSolutionExplorer": false
 }

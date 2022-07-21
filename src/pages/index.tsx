@@ -39,7 +39,6 @@ const Home: NextPage = () => {
     } = usePosts();
 
     const communityStateValue = useRecoilValue(communityState);
-    const router = useRouter();
 
     const getUserHomePosts = async () => {
         console.log("GETTING USER FEED");
