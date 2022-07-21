@@ -6,26 +6,24 @@ export type DirectoryMenuItem = {
     link: string;
     icon: IconType;
     iconColor: string;
+    imageURL?: string;
 };
+
 interface DirectoryMenuState {
     isOpen: boolean;
     selectedMenuItem: DirectoryMenuItem;
 }
-
 export const defaultMenuItem = {
-        displayText: "Home",
-        link: "/",
-        icon: TiHome,
-        iconColor: "black",
+    displayText: "Home",
+    link: "/",
+    icon: TiHome,
+    iconColor: "black",
 };
-
 export const defaultMenuState: DirectoryMenuState = {
-        isOpen: false,
-        selectedMenuItem: defaultMenuItem,
+    isOpen: false,
+    selectedMenuItem: defaultMenuItem,
 };
-
-    export const directoryMenuState = atom({
-        key: "directoryMenuState",
-        default: defaultMenuItem,
-        default: defaultMenuState,
-    });
+export const directoryMenuState = atom({
+    key: "directoryMenuState",
+    default: defaultMenuState,
+});

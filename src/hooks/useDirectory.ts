@@ -7,12 +7,10 @@ import {
     DirectoryMenuItem,
     directoryMenuState,
 } from "../atoms/directoryMenuAtom";
-
 import { FaReddit } from "react-icons/fa";
-
 const useDirectory = () => {
     const [directoryState, setDirectoryState] =
-    useRecoilState(directoryMenuState);
+        useRecoilState(directoryMenuState);
     const router = useRouter();
     const communityStateValue = useRecoilValue(communityState);
     const onSelectMenuItem = (menuItem: DirectoryMenuItem) => {
@@ -20,13 +18,11 @@ const useDirectory = () => {
             ...prev,
             selectedMenuItem: menuItem,
         }));
-
         router?.push(menuItem.link);
         if (directoryState.isOpen) {
             toggleMenuOpen();
         }
     };
-
     const toggleMenuOpen = () => {
         setDirectoryState((prev) => ({
             ...prev,
@@ -45,6 +41,7 @@ const useDirectory = () => {
                     link: `r/${existingCommunity.id}`,
                     icon: FaReddit,
                     iconColor: "blue.500",
+                    imageURL: existingCommunity.imageURL,
                 },
             }));
             return;
@@ -54,7 +51,6 @@ const useDirectory = () => {
             selectedMenuItem: defaultMenuItem,
         }));
     }, [router.query?.community, communityStateValue.visitedCommunities]);
-
     return { directoryState, onSelectMenuItem, toggleMenuOpen };
 };
 export default useDirectory;

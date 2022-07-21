@@ -8,17 +8,13 @@ import { communityState } from "../../../atoms/communitiesAtom";
 import { auth } from "../../../firebase/clientApp";
 import CreateCommunityModal from "../../Modal/CreateCommunity";
 import MenuListItem from "./MenuListItem";
-
-
 type CommunitiesProps = {
     menuOpen: boolean;
 };
-
 const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
     const [user] = useAuthState(auth);
     const [open, setOpen] = useState(false);
     const mySnippets = useRecoilValue(communityState).mySnippets;
-
     return (
         <>
             <CreateCommunityModal
@@ -69,6 +65,7 @@ const Communities: React.FC<CommunitiesProps> = ({ menuOpen }) => {
                         displayText={`r/${snippet.communityId}`}
                         link={`/r/${snippet.communityId}`}
                         iconColor="blue.500"
+                        imageURL={snippet.imageURL}
                     />
                 ))}
             </Box>
