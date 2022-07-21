@@ -1,5 +1,4 @@
 import React from "react";
-
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
     Box,
@@ -10,21 +9,16 @@ import {
     MenuList,
     Text,
 } from "@chakra-ui/react";
-
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState } from "recoil";
 import { authModalState } from "../../../../atoms/authModalAtom";
 import { auth } from "../../../../firebase/clientApp";
-
 import NoUserList from "./NoUserList";
 import UserList from "./UserList";
-
 import { FaRedditSquare } from "react-icons/fa";
 import { VscAccount } from "react-icons/vsc";
 import { IoSparkles } from "react-icons/io5";
-
 type MenuWrapperProps = {};
-
 const MenuWrapper: React.FC<MenuWrapperProps> = () => {
     const [authModal, setModalState] = useRecoilState(authModalState);
     const [user] = useAuthState(auth);
@@ -37,7 +31,7 @@ const MenuWrapper: React.FC<MenuWrapperProps> = () => {
                 _hover={{ outline: "1px solid", outlineColor: "gray.200" }}
             >
                 <Flex alignItems="center">
-                <Flex alignItems="center">
+                    <Flex alignItems="center">
                         {user ? (
                             <>
                                 <Icon
@@ -54,7 +48,7 @@ const MenuWrapper: React.FC<MenuWrapperProps> = () => {
                                     mr={8}
                                 >
                                     <Text fontWeight={700}>
-                                        {user?.displayName || user?.email}
+                                        {user?.displayName || user?.email?.split("@")[0]}
                                     </Text>
                                     <Flex alignItems="center">
                                         <Icon as={IoSparkles} color="brand.100" mr={1} />
