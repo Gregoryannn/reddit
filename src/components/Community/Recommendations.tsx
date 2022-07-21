@@ -1,4 +1,4 @@
-importimport React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Box,
     Button,
@@ -8,6 +8,7 @@ import {
     SkeletonCircle,
     Stack,
     Text,
+    Image,
 } from "@chakra-ui/react";
 import { FaReddit } from "react-icons/fa";
 import { Community } from "../../atoms/communitiesAtom";
@@ -106,6 +107,15 @@ const Recommendations: React.FC<RecommendationsProps> = () => {
                                                     color="brand.100"
                                                     mr={2}
                                                 />
+                                                {item.imageURL ? (
+                                                    <Image
+                                                        borderRadius="full"
+                                                        boxSize="28px"
+                                                        src={item.imageURL}
+                                                        mr={2}
+                                                    />
+                                                ) : (
+                                                )}
                                                 <span
                                                     style={{
                                                         whiteSpace: "nowrap",
@@ -121,7 +131,7 @@ const Recommendations: React.FC<RecommendationsProps> = () => {
                                                 fontSize="8pt"
                                                 onClick={(event) => {
                                                     event.stopPropagation();
-                                                    onJoinLeaveCommunity(item.id, isJoined);
+                                                    onJoinLeaveCommunity(item, isJoined);
                                                 }}
                                                 variant={isJoined ? "outline" : "solid"}
                                             >

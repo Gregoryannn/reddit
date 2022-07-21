@@ -12,7 +12,6 @@ import {
     Image,
     Spinner,
 } from "@chakra-ui/react";
-
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { RiCakeLine } from "react-icons/ri";
 import Link from "next/link";
@@ -25,7 +24,6 @@ import { useRecoilValue } from "recoil";
 import { FaReddit } from "react-icons/fa";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
-
 type AboutProps = {
     communityData: Community;
     pt?: number;
@@ -42,23 +40,19 @@ const About: React.FC<AboutProps> = ({
     const router = useRouter();
     const selectFileRef = useRef<HTMLInputElement>(null);
     const [selectedFile, setSelectedFile] = useState<string>();
-
-   // Added last!
+    // Added last!
     const [imageLoading, setImageLoading] = useState(false);
-
     const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const reader = new FileReader();
         if (event.target.files?.[0]) {
             reader.readAsDataURL(event.target.files[0]);
         }
-
         reader.onload = (readerEvent) => {
             if (readerEvent.target?.result) {
                 setSelectedFile(readerEvent.target?.result as string);
             }
         };
     };
-
     const updateImage = async () => {
         if (!selectedFile) return;
         setImageLoading(true);
@@ -76,7 +70,6 @@ const About: React.FC<AboutProps> = ({
         window.location.reload();
         setImageLoading(false);
     };
-
     return (
         <Box pt={pt}>
             <Flex
@@ -102,7 +95,7 @@ const About: React.FC<AboutProps> = ({
                         <Skeleton height="20px" />
                     </Stack>
                 ) : (
-                    <>
+          <>
                         {user?.uid === communityData?.creatorId && (
                             <Box
                                 bg="gray.100"
@@ -153,53 +146,58 @@ const About: React.FC<AboutProps> = ({
                                         Create Post
                                     </Button>
                                 </Link>
+                                )}
+                                {/* !!!ADDED AT THE VERY END!!! INITIALLY DOES NOT EXIST */}
+                                {user?.uid === communityData.creatorId && (
+                <>
+                                        <Divider />
+                                        <Stack fontSize="10pt" spacing={1}>
+                                            <Text fontWeight={600}>Admin</Text>
+                                            <Flex align="center" justify="space-between">
+                                                <Text
+                                                    color="blue.500"
+                                                    cursor="pointer"
+                                                    _hover={{ textDecoration: "underline" }}
+                                                    onClick={() => selectFileRef.current?.click()}
+                                                >
+                                                    Change Image
+                                                </Text>
+                                                {communityData.imageURL || selectedFile ? (
+                                                    <Image
+                                                        borderRadius="full"
+                                                        boxSize="40px"
+                                                        src={selectedFile || communityData.imageURL}
+                                                        alt="Dan Abramov"
+                                                    />
+                                                ) : (
+                                                    <Icon
+                                                        as={FaReddit}
+                                                        fontSize={40}
+                                                        color="brand.100"
+                                                        mr={2}
+                                                    />
+                                                )}
+                                            </Flex>
+                                            {selectedFile &&
+                                                (imageLoading ? (
+                                                    <Spinner />
+                                                ) : (
+                                                    <Text cursor="pointer" onClick={updateImage}>
+                                                        Save Changes
+                                                    </Text>
+                                                ))}
+                                            <input
+                                                id="file-upload"
+                                                type="file"
+                                                accept="image/x-png,image/gif,image/jpeg"
+                                                hidden
+                                                ref={selectFileRef}
+                                                onChange={onSelectImage}
+                                            />
+
+                                    </Stack>
+                                </>
                             )}
-                            {/* // ONLY CREATOR OF COMMUNITY CAN SEE THIS */}
-                            <Divider />
-                            <Stack fontSize="10pt" spacing={1}>
-                                <Text fontWeight={600}>Admin</Text>
-                                <Flex align="center" justify="space-between">
-                                    <Text
-                                        color="blue.500"
-                                        cursor="pointer"
-                                        _hover={{ textDecoration: "underline" }}
-                                        onClick={() => selectFileRef.current?.click()}
-                                    >
-                                        Change Image
-                                    </Text>
-                                    {communityData.imageURL || selectedFile ? (
-                                        <Image
-                                            borderRadius="full"
-                                            boxSize="40px"
-                                            src={selectedFile || communityData.imageURL}
-                                            alt="Dan Abramov"
-                                        />
-                                    ) : (
-                                        <Icon
-                                            as={FaReddit}
-                                            fontSize={40}
-                                            color="brand.100"
-                                            mr={2}
-                                        />
-                                    )}
-                                </Flex>
-                                {selectedFile &&
-                                    (imageLoading ? (
-                                        <Spinner />
-                                    ) : (
-                                        <Text cursor="pointer" onClick={updateImage}>
-                                            Save Changes
-                                        </Text>
-                                    ))}
-                                <input
-                                    id="file-upload"
-                                    type="file"
-                                    accept="image/x-png,image/gif,image/jpeg"
-                                    hidden
-                                    ref={selectFileRef}
-                                    onChange={onSelectImage}
-                                />
-                            </Stack>
                         </Stack>
                     </>
                 )}

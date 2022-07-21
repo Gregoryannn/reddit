@@ -8,11 +8,12 @@ export interface Community {
     createdAt?: Timestamp;
     imageURL?: string;
 }
-
 export interface CommunitySnippet {
     communityId: string;
     isModerator?: boolean;
+    imageURL?: string;
 }
+
 interface CommunityState {
     [key: string]:
     | CommunitySnippet[]
