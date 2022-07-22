@@ -9,7 +9,6 @@ import {
     Textarea,
     Image,
 } from "@chakra-ui/react";
-
 import { User } from "firebase/auth";
 import {
     addDoc,
@@ -17,7 +16,6 @@ import {
     serverTimestamp,
     updateDoc,
 } from "firebase/firestore";
-
 import { useRouter } from "next/router";
 import { BiPoll } from "react-icons/bi";
 import { BsLink45Deg, BsMic } from "react-icons/bs";
@@ -30,7 +28,6 @@ import { postState } from "../../../atoms/postsAtom";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import TextInputs from "./TextInputs";
 import ImageUpload from "./ImageUpload";
-
 const formTabs = [
     {
         title: "Post",
@@ -57,18 +54,23 @@ export type TabItem = {
     title: string;
     icon: typeof Icon.arguments;
 };
+
 type NewPostFormProps = {
     communityId: string;
+    communityImageURL?: string;
     user: User;
 };
 
-const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
-    const [selectedTab, setSelectedTab] = useState(formTabs[0].title);
-    const [textInputs, setTextInputs] = useState({
+const NewPostForm: React.FC<NewPostFormProps> = ({
+        communityId,
+        communityImageURL,
+        user,
+    }) => {
+        const [selectedTab, setSelectedTab] = useState(formTabs[0].title);
+        const [textInputs, setTextInputs] = useState({
             title: "",
             body: "",
         });
-
         const [selectedFile, setSelectedFile] = useState<string>();
         const selectFileRef = useRef<HTMLInputElement>(null);
         const [loading, setLoading] = useState(false);
@@ -76,12 +78,12 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
         const router = useRouter();
         const setPostItems = useSetRecoilState(postState);
         const handleCreatePost = async () => {
-
             setLoading(true);
             const { title, body } = textInputs;
             try {
                 const postDocRef = await addDoc(collection(firestore, "posts"), {
                     communityId,
+                    communityImageURL: communityImageURL || "",
                     creatorId: user.uid,
                     userDisplayText: user.email!.split("@")[0],
                     title,
@@ -125,47 +127,47 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ communityId, user }) => {
                 }
             };
         };
+        const onTextChange = ({
+            target: { name, value },
+        }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            setTextInputs((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        };
+        return (
+            <Flex direction="column" bg="white" borderRadius={4} mt={2}>
+                <Flex width="100%">
+                    {formTabs.map((item, index) => (
+                        <TabItem
+                            key={index}
+                            item={item}
+                            selected={item.title === selectedTab}
+                            setSelectedTab={setSelectedTab}
+                        />
+                    ))}
+                </Flex>
+                <Flex p={4}>
+                    {selectedTab === "Post" && (
+                        <TextInputs
+                            textInputs={textInputs}
+                            onChange={onTextChange}
+                            handleCreatePost={handleCreatePost}
+                            loading={loading}
+                        />
+                    )}
+                    {selectedTab === "Images & Video" && (
+                        <ImageUpload
+                            selectedFile={selectedFile}
+                            setSelectedFile={setSelectedFile}
+                            setSelectedTab={setSelectedTab}
+                            selectFileRef={selectFileRef}
+                            onSelectImage={onSelectImage}
+                        />
+                    )}
+                </Flex>
+            </Flex>
+        );
+    };
 
-            const onTextChange = ({
-                target: { name, value },
-            }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-                    setTextInputs((prev) => ({
-                        ...prev,
-                        [name]: value,
-                    }));
-  };
-return (
-    <Flex direction="column" bg="white" borderRadius={4} mt={2}>
-        <Flex width="100%">
-            {formTabs.map((item, index) => (
-                <TabItem
-                    key={index}
-                    item={item}
-                    selected={item.title === selectedTab}
-                    setSelectedTab={setSelectedTab}
-                />
-            ))}
-        </Flex>
-        <Flex p={4}>
-            {selectedTab === "Post" && (
-          <TextInputs
-            textInputs={textInputs}
-            onChange={onTextChange}
-            handleCreatePost={handleCreatePost}
-            loading={loading}
-          />
-            )}
-            {selectedTab === "Images & Video" && (
-         <ImageUpload
-            selectedFile={selectedFile}
-            setSelectedFile={setSelectedFile}
-            setSelectedTab={setSelectedTab}
-            selectFileRef={selectFileRef}
-            onSelectImage={onSelectImage}
-          />
-            )}
-        </Flex>
-    </Flex>
-);
-};
 export default NewPostForm;

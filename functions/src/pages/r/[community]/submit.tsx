@@ -7,8 +7,6 @@ import { communityState } from "../../../atoms/communitiesAtom";
 import About from "../../../components/Community/About";
 import PageContentLayout from "../../../components/Layout/PageContent";
 import NewPostForm from "../../../components/Post/PostForm/NewPostForm";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, firestore } from "../../../firebase/clientApp";
 import { auth } from "../../../firebase/clientApp";
 import useCommunityData from "../../../hooks/useCommunityData";
 
@@ -25,7 +23,15 @@ const CreateCommmunityPostPage: NextPage = () => {
                 <Box p="14px 0px" borderBottom="1px solid" borderColor="white">
                     <Text fontWeight={600}>Create a post</Text>
                 </Box>
-                {user && <NewPostForm communityId={community as string} user={user} />}
+                {user && (
+                    <NewPostForm
+                        communityId={visitedCommunities[community as string].id}
+                        communityImageURL={
+                            visitedCommunities[community as string]?.imageURL
+                        }
+                        user={user}
+                    />
+                )}
             </>
             {visitedCommunities[community as string] && (
                 <>
