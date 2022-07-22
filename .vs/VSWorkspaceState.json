@@ -2,13 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\atoms",
     "\\src\\components",
     "\\src\\components\\Community",
-    "\\src\\components\\Navbar\\Directory",
-    "\\src\\components\\Post\\PostItem",
+    "\\src\\components\\Navbar",
+    "\\src\\components\\Navbar\\RightContent",
+    "\\src\\components\\Navbar\\RightContent\\ProfileMenu",
     "\\src\\hooks",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\hooks\\usePosts.ts",
+  "SelectedNode": "\\src\\components\\Navbar\\RightContent\\MenuWrapper.tsx",
   "PreviewInSolutionExplorer": false
 }
