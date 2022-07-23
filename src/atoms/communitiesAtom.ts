@@ -28,7 +28,7 @@ interface CommunityState {
     };
     currentCommunity: Community;
 }
-const defaultCommunity: Community = {
+export const defaultCommunity: Community = {
     id: "",
     creatorId: "",
     numberOfMembers: 0,
