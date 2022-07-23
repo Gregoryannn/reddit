@@ -1,11 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\functions\\src",
-    "\\functions\\src\\components\\Post\\PostItem",
-    "\\functions\\src\\pages\\r",
-    "\\functions\\src\\pages\\r\\[community]"
+    "\\functions",
+    "\\src",
+    "\\src\\components\\Comunity",
+    "\\src\\components\\Navbar",
+    "\\src\\components\\Navbar\\Directory",
+    "\\src\\pages"
   ],
-  "SelectedNode": "\\functions",
+  "SelectedNode": "\\src\\pages\\index.tsx",
   "PreviewInSolutionExplorer": false
 }
