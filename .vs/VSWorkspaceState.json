@@ -1,16 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src",
-    "\\src\\atoms",
-    "\\src\\components",
-    "\\src\\components\\Community",
-    "\\src\\components\\Navbar",
-    "\\src\\components\\Navbar\\RightContent",
-    "\\src\\components\\Navbar\\RightContent\\ProfileMenu",
-    "\\src\\hooks",
-    "\\src\\pages"
+    "\\functions\\src",
+    "\\functions\\src\\components\\Post\\PostItem",
+    "\\functions\\src\\pages\\r",
+    "\\functions\\src\\pages\\r\\[community]"
   ],
-  "SelectedNode": "\\src\\components\\Navbar\\RightContent\\MenuWrapper.tsx",
+  "SelectedNode": "\\functions",
   "PreviewInSolutionExplorer": false
 }
