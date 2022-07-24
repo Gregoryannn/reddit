@@ -9,7 +9,6 @@ import {
     Textarea,
     Image,
 } from "@chakra-ui/react";
-
 import { User } from "firebase/auth";
 import {
     addDoc,
@@ -18,7 +17,6 @@ import {
     serverTimestamp,
     updateDoc,
 } from "firebase/firestore";
-
 import { useRouter } from "next/router";
 import { BiPoll } from "react-icons/bi";
 import { BsLink45Deg, BsMic } from "react-icons/bs";
@@ -31,7 +29,6 @@ import { postState } from "../../../atoms/postsAtom";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import TextInputs from "./TextInputs";
 import ImageUpload from "./ImageUpload";
-
 
 const formTabs = [
     {
@@ -55,15 +52,18 @@ const formTabs = [
         icon: BsMic,
     },
 ];
+
 export type TabItem = {
     title: string;
     icon: typeof Icon.arguments;
 };
+
 type NewPostFormProps = {
     communityId: string;
     communityImageURL?: string;
     user: User;
 };
+
 const NewPostForm: React.FC<NewPostFormProps> = ({
     communityId,
     communityImageURL,
@@ -74,7 +74,6 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
         title: "",
         body: "",
     });
-
     const [selectedFile, setSelectedFile] = useState<string>();
     const selectFileRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
@@ -99,7 +98,6 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
                 editedAt: serverTimestamp(),
             });
 
-
             console.log("HERE IS NEW POST ID", postDocRef.id);
 
             // // check if selectedFile exists, if it does, do image processing
@@ -112,6 +110,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
                 });
                 console.log("HERE IS DOWNLOAD URL", downloadURL);
             }
+
             // Clear the cache to cause a refetch of the posts
             setPostItems((prev) => ({
                 ...prev,
@@ -124,17 +123,20 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
         }
         setLoading(false);
     };
+
     const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const reader = new FileReader();
         if (event.target.files?.[0]) {
             reader.readAsDataURL(event.target.files[0]);
         }
+
         reader.onload = (readerEvent) => {
             if (readerEvent.target?.result) {
                 setSelectedFile(readerEvent.target?.result as string);
             }
         };
     };
+
     const onTextChange = ({
         target: { name, value },
     }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -143,6 +145,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
             [name]: value,
         }));
     };
+
     return (
         <Flex direction="column" bg="white" borderRadius={4} mt={2}>
             <Flex width="100%">

@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "../../../atoms/authModalAtom";
 import AuthModal from "../../Modal/Auth";
+
 type AuthButtonsProps = {};
+
 const AuthButtons: React.FC<AuthButtonsProps> = () => {
     const setAuthModalState = useSetRecoilState(authModalState);
 

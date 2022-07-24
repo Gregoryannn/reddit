@@ -11,6 +11,7 @@ type UserListProps = {};
 
 const UserList: React.FC<UserListProps> = () => {
     const resetCommunityState = useResetRecoilState(communityState);
+
     const logout = async () => {
         await signOut(auth);
         resetCommunityState();

@@ -23,6 +23,7 @@ import {
 } from "react-icons/io5";
 import { Post } from "../../../atoms/postsAtom";
 import Link from "next/link";
+
 export type PostItemContentProps = {
     post: Post;
     onVote: (
@@ -40,6 +41,7 @@ export type PostItemContentProps = {
     userVoteValue?: number;
     homePage?: boolean;
 };
+
 const PostItem: React.FC<PostItemContentProps> = ({
     post,
     postIdx,
@@ -54,6 +56,7 @@ const PostItem: React.FC<PostItemContentProps> = ({
     const [loadingImage, setLoadingImage] = useState(true);
     const [loadingDelete, setLoadingDelete] = useState(false);
     const singlePostView = !onSelectPost; // function not passed to [pid]
+
     const handleDelete = async (
         event: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
@@ -77,6 +80,7 @@ const PostItem: React.FC<PostItemContentProps> = ({
             // setError
         }
     };
+
     return (
         <Flex
             border="1px solid"
@@ -227,4 +231,5 @@ const PostItem: React.FC<PostItemContentProps> = ({
         </Flex>
     );
 };
+
 export default PostItem;

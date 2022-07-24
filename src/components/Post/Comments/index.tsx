@@ -25,11 +25,13 @@ import { Post, postState } from "../../../atoms/postsAtom";
 import { firestore } from "../../../firebase/clientApp";
 import CommentItem, { Comment } from "./CommentItem";
 import CommentInput from "./Input";
+
 type CommentsProps = {
     user?: User | null;
     selectedPost: Post;
     community: string;
 };
+
 const Comments: React.FC<CommentsProps> = ({
     user,
     selectedPost,
@@ -48,9 +50,11 @@ const Comments: React.FC<CommentsProps> = ({
             setAuthModalState({ open: true, view: "login" });
             return;
         }
+
         setCommentCreateLoading(true);
         try {
             const batch = writeBatch(firestore);
+
             // Create comment document
             const commentDocRef = doc(collection(firestore, "comments"));
             batch.set(commentDocRef, {
@@ -63,11 +67,13 @@ const Comments: React.FC<CommentsProps> = ({
                 postTitle: selectedPost.title,
                 createdAt: serverTimestamp(),
             } as Comment);
+
             // Update post numberOfComments
             batch.update(doc(firestore, "posts", selectedPost.id), {
                 numberOfComments: increment(1),
             });
             await batch.commit();
+
             setComment("");
             const { id: postId, title } = selectedPost;
             setComments((prev) => [
@@ -86,6 +92,7 @@ const Comments: React.FC<CommentsProps> = ({
                 } as Comment,
                 ...prev,
             ]);
+
             // Fetch posts again to update number of comments
             setPostState((prev) => ({
                 ...prev,
@@ -102,36 +109,40 @@ const Comments: React.FC<CommentsProps> = ({
     };
 
     const onDeleteComment = useCallback(
-            async (comment: Comment) => {
-                setDeleteLoading(comment.id as string);
-                try {
-                    if (!comment.id) throw "Comment has no ID";
-                    const batch = writeBatch(firestore);
-                    const commentDocRef = doc(firestore, "comments", comment.id);
-                    batch.delete(commentDocRef);
-                    batch.update(doc(firestore, "posts", comment.postId), {
-                        numberOfComments: increment(-1),
-                    });
-                    await batch.commit();
-                    setPostState((prev) => ({
-                        ...prev,
-                        selectedPost: {
-                            ...prev.selectedPost,
-                            numberOfComments: prev.selectedPost?.numberOfComments! - 1,
-                        } as Post,
-                        postUpdateRequired: true,
-                    }));
+        async (comment: Comment) => {
+            setDeleteLoading(comment.id as string);
+            try {
+                if (!comment.id) throw "Comment has no ID";
+                const batch = writeBatch(firestore);
+                const commentDocRef = doc(firestore, "comments", comment.id);
+                batch.delete(commentDocRef);
 
-                    setComments((prev) => prev.filter((item) => item.id !== comment.id));
-                    // return true;
-                } catch (error: any) {
-                    console.log("Error deletig comment", error.message);
-                    // return false;
-                }
-                setDeleteLoading("");
-            },
-                [setComments, setPostState]
-  );
+                batch.update(doc(firestore, "posts", comment.postId), {
+                    numberOfComments: increment(-1),
+                });
+
+                await batch.commit();
+
+                setPostState((prev) => ({
+                    ...prev,
+                    selectedPost: {
+                        ...prev.selectedPost,
+                        numberOfComments: prev.selectedPost?.numberOfComments! - 1,
+                    } as Post,
+                    postUpdateRequired: true,
+                }));
+
+                setComments((prev) => prev.filter((item) => item.id !== comment.id));
+                // return true;
+            } catch (error: any) {
+                console.log("Error deletig comment", error.message);
+                // return false;
+            }
+            setDeleteLoading("");
+        },
+        [setComments, setPostState]
+    );
+
     const getPostComments = async () => {
         try {
             const commentsQuery = query(
@@ -150,10 +161,13 @@ const Comments: React.FC<CommentsProps> = ({
         }
         setCommentFetchLoading(false);
     };
+
     useEffect(() => {
         console.log("HERE IS SELECTED POST", selectedPost.id);
+
         getPostComments();
     }, []);
+
     return (
         <Box bg="white" p={2} borderRadius="0px 0px 4px 4px">
             <Flex

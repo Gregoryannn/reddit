@@ -9,6 +9,7 @@ import MenuWrapper from "./ProfileMenu/MenuWrapper";
 type RightContentProps = {
     user: User;
 };
+
 const RightContent: React.FC<RightContentProps> = ({ user }) => {
     return (
         <>

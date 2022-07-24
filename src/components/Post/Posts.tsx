@@ -21,11 +21,11 @@ import { useRouter } from "next/router";
 import usePosts from "../../hooks/usePosts";
 
 type PostsProps = {
-    communityData: Community;
     communityData?: Community;
     userId?: string;
     loadingUser: boolean;
 };
+
 const Posts: React.FC<PostsProps> = ({
     communityData,
     userId,
@@ -34,13 +34,13 @@ const Posts: React.FC<PostsProps> = ({
     /**
      * PART OF INITIAL SOLUTION BEFORE CUSTOM HOOK
      */
-    const [postStateValue, setPostStateValue] = useRecoilState(postState);
     const [loading, setLoading] = useState(false);
     // const setAuthModalState = useSetRecoilState(authModalState);
     const router = useRouter();
 
-    const { onVote, onDeletePost } = usePosts(communityData);
-    const { onVote, onDeletePost } = usePosts(communityData!);
+    const { postStateValue, setPostStateValue, onVote, onDeletePost } = usePosts(
+        communityData!
+    );
 
     /**
      * USE ALL BELOW INITIALLY THEN CONVERT TO A CUSTOM HOOK AFTER
@@ -56,15 +56,19 @@ const Posts: React.FC<PostsProps> = ({
     //     setAuthModalState({ open: true, view: "login" });
     //     return;
     //   }
+
     //   const { voteStatus } = post;
+
     //   // is this an upvote or a downvote?
     //   // has this user voted on this post already? was it up or down?
     //   const existingVote = postItems.postVotes.find(
     //     (item: PostVote) => item.postId === post.id
     //   );
+
     //   try {
     //     let voteChange = vote;
     //     const batch = writeBatch(firestore);
+
     //     // New vote
     //     if (!existingVote) {
     //       const newVote: PostVote = {
@@ -72,9 +76,11 @@ const Posts: React.FC<PostsProps> = ({
     //         communityId: communityData.id!,
     //         voteValue: vote,
     //       };
+
     //       const postVoteRef = doc(
     //         collection(firestore, "users", `${userId}/postVotes`)
     //       );
+
     //       // Needed for frontend state since we're not getting resource back
     //       newVote.id = postVoteRef.id;
     //       batch.set(postVoteRef, {
@@ -82,6 +88,7 @@ const Posts: React.FC<PostsProps> = ({
     //         communityId: communityData.id!,
     //         voteValue: vote,
     //       });
+
     //       // Optimistically update state
     //       setPostItems((prev) => ({
     //         ...prev,
@@ -96,9 +103,11 @@ const Posts: React.FC<PostsProps> = ({
     //         "users",
     //         `${userId}/postVotes/${existingVote.id}`
     //       );
+
     //       // Removing vote
     //       if (existingVote.voteValue === vote) {
     //         voteChange *= -1;
+
     //         setPostItems((prev) => ({
     //           ...prev,
     //           postVotes: prev.postVotes.filter((item) => item.postId !== post.id),
@@ -108,6 +117,7 @@ const Posts: React.FC<PostsProps> = ({
     //       // Changing vote
     //       else {
     //         voteChange = 2 * vote;
+
     //         batch.update(postVoteRef, {
     //           voteValue: vote,
     //         });
@@ -123,8 +133,10 @@ const Posts: React.FC<PostsProps> = ({
     //         }));
     //       }
     //     }
+
     //     const postRef = doc(firestore, "posts", post.id);
     //     batch.update(postRef, { voteStatus: voteStatus + voteChange });
+
     //     /**
     //      * Perform writes
     //      * Could move state updates to after this
@@ -135,12 +147,14 @@ const Posts: React.FC<PostsProps> = ({
     //     console.log("onVote error", error);
     //   }
     // };
+
     // const getUserPostVotes = async () => {
     //   try {
     //     const postVotesQuery = query(
     //       collection(firestore, `users/${userId}/postVotes`),
     //       where("communityId", "==", communityData.id)
     //     );
+
     //     const postVoteDocs = await getDocs(postVotesQuery);
     //     const postVotes = postVoteDocs.docs.map((doc) => ({
     //       id: doc.id,
@@ -154,6 +168,7 @@ const Posts: React.FC<PostsProps> = ({
     //     console.log("getUserPostVotes error", error);
     //   }
     // };
+
     const onSelectPost = (post: Post, postIdx: number) => {
         setPostStateValue((prev) => ({
             ...prev,
@@ -173,6 +188,7 @@ const Posts: React.FC<PostsProps> = ({
             }));
             return;
         }
+
         getPosts();
         /**
          * REAL-TIME POST LISTENER
@@ -200,11 +216,14 @@ const Posts: React.FC<PostsProps> = ({
         //   }));
         //   setLoading(false);
         // });
+
         // // Remove real-time listener on component dismount
         // return () => unsubscribe();
     }, [communityData, postStateValue.postUpdateRequired]);
+
     const getPosts = async () => {
         console.log("WE ARE GETTING POSTS!!!");
+
         setLoading(true);
         try {
             const postsQuery = query(
@@ -228,6 +247,9 @@ const Posts: React.FC<PostsProps> = ({
         }
         setLoading(false);
     };
+
+    console.log("HERE IS POST STATE", postStateValue);
+
     return (
         <>
             {loading ? (
@@ -238,7 +260,7 @@ const Posts: React.FC<PostsProps> = ({
                         <PostItem
                             key={post.id}
                             post={post}
-                            postIdx={index}
+                            // postIdx={index}
                             onVote={onVote}
                             onDeletePost={onDeletePost}
                             userVoteValue={

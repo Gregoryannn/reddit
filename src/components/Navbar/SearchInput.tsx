@@ -8,6 +8,7 @@ import { User } from "firebase/auth";
 type SearchInputProps = {
     user: User;
 };
+
 const SearchInput: React.FC<SearchInputProps> = ({ user }) => {
     return (
         <Flex
