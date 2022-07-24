@@ -9,6 +9,7 @@ import {
     Textarea,
     Image,
 } from "@chakra-ui/react";
+
 import { User } from "firebase/auth";
 import {
     addDoc,
@@ -17,6 +18,7 @@ import {
     serverTimestamp,
     updateDoc,
 } from "firebase/firestore";
+
 import { useRouter } from "next/router";
 import { BiPoll } from "react-icons/bi";
 import { BsLink45Deg, BsMic } from "react-icons/bs";
@@ -29,6 +31,8 @@ import { postState } from "../../../atoms/postsAtom";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import TextInputs from "./TextInputs";
 import ImageUpload from "./ImageUpload";
+
+
 const formTabs = [
     {
         title: "Post",
@@ -70,12 +74,14 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
         title: "",
         body: "",
     });
+
     const [selectedFile, setSelectedFile] = useState<string>();
     const selectFileRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
     const setPostItems = useSetRecoilState(postState);
+
     const handleCreatePost = async () => {
         setLoading(true);
         const { title, body } = textInputs;
@@ -93,7 +99,6 @@ const NewPostForm: React.FC<NewPostFormProps> = ({
                 editedAt: serverTimestamp(),
             });
 
-            await addDoc(collection(firestore, "posts"), {});
 
             console.log("HERE IS NEW POST ID", postDocRef.id);
 
