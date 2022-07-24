@@ -3,7 +3,6 @@ import React from "react";
 
 type InputItemProps = {
     name: string;
-    placeholder: string;
     value?: string;
     placeholder?: string;
     type: string;

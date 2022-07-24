@@ -7,41 +7,41 @@ import { auth, firestore } from "../firebase/clientApp";
 import nookies from "nookies";
 import { User } from "firebase/auth";
 
-
 const useAuth = () => {
     const [user] = useAuthState(auth);
     // const [currentUser, setCurrentUser] = useRecoilState(userState); maybe later
 
     useEffect(() => {
-    console.log("HERE IS USER", user);
-    user ? setUserCookie(user) : nookies.set(undefined, "token", "");
-}, [user]);
+        console.log("HERE IS USER", user);
 
-const setUserCookie = async (user: User) => {
-    const token = await user.getIdToken();
-    console.log("HERE IS TOKEN", token);
-    nookies.set(undefined, "token", token);
-};
+        user ? setUserCookie(user) : nookies.set(undefined, "token", "");
+    }, [user]);
 
-  // useEffect(() => {
-  //   // User has logged out; firebase auth state has been cleared
-  //   if (!user?.uid && userState) {
-  //     return setCurrentUser(null);
-  //   }
+    const setUserCookie = async (user: User) => {
+        const token = await user.getIdToken();
+        console.log("HERE IS TOKEN", token);
+        nookies.set(undefined, "token", token);
+    };
 
-  //   const userDoc = doc(firestore, "users", user?.uid as string);
-  //   const unsubscribe = onSnapshot(userDoc, (doc) => {
-  //     console.log("CURRENT DATA", doc.data());
-  //     if (!doc.data()) return;
-  //     if (currentUser) return;
-  //     setCurrentUser(doc.data() as any);
-  //   });
+    // useEffect(() => {
+    //   // User has logged out; firebase auth state has been cleared
+    //   if (!user?.uid && userState) {
+    //     return setCurrentUser(null);
+    //   }
 
-  //   if (currentUser) {
-  //     unsubscribe();
-  //   }
+    //   const userDoc = doc(firestore, "users", user?.uid as string);
+    //   const unsubscribe = onSnapshot(userDoc, (doc) => {
+    //     console.log("CURRENT DATA", doc.data());
+    //     if (!doc.data()) return;
+    //     if (currentUser) return;
+    //     setCurrentUser(doc.data() as any);
+    //   });
 
-  //   return () => unsubscribe();
-  // }, [user, currentUser]);
+    //   if (currentUser) {
+    //     unsubscribe();
+    //   }
+
+    //   return () => unsubscribe();
+    // }, [user, currentUser]);
 };
 export default useAuth;

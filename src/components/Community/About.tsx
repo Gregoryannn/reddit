@@ -12,7 +12,6 @@ import {
     Image,
     Spinner,
 } from "@chakra-ui/react";
-
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { RiCakeLine } from "react-icons/ri";
 import Link from "next/link";
@@ -38,9 +37,7 @@ const About: React.FC<AboutProps> = ({
     pt,
     onCreatePage,
     loading,
-
 }) => {
-
     const [user] = useAuthState(auth); // will revisit how 'auth' state is passed
     const router = useRouter();
     const selectFileRef = useRef<HTMLInputElement>(null);
@@ -51,11 +48,13 @@ const About: React.FC<AboutProps> = ({
 
     // Added last!
     const [imageLoading, setImageLoading] = useState(false);
+
     const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const reader = new FileReader();
         if (event.target.files?.[0]) {
             reader.readAsDataURL(event.target.files[0]);
         }
+
         reader.onload = (readerEvent) => {
             if (readerEvent.target?.result) {
                 setSelectedFile(readerEvent.target?.result as string);
