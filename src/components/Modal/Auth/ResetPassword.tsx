@@ -6,7 +6,7 @@ import { authModalState, ModalView } from "../../../atoms/authModalAtom";
 import { auth } from "../../../firebase/clientApp";
 import { useSetRecoilState } from "recoil";
 
-type ResetPasswordProps = {
+    type ResetPasswordProps = {
         toggleView: (view: ModalView) => void;
     };
 
@@ -16,13 +16,11 @@ type ResetPasswordProps = {
         const [success, setSuccess] = useState(false);
         const [sendPasswordResetEmail, sending, error] =
             useSendPasswordResetEmail(auth);
-
         const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             await sendPasswordResetEmail(email);
             setSuccess(true);
         };
-
         return (
             <Flex direction="column" alignItems="center" width="100%">
                 <Icon as={BsReddit} color="brand.100" fontSize={40} mb={2} />
@@ -60,13 +58,10 @@ type ResetPasswordProps = {
                                 }}
                                 bg="gray.50"
                             />
-                                {error && (
-                                    <Text textAlign="center" fontSize="10pt" color="red">
-                                        {error.message}
-                                    </Text>
-                                )}
-
-                             <Button
+                            <Text textAlign="center" fontSize="10pt" color="red">
+                                {error?.message}
+                            </Text>
+                            <Button
                                 width="100%"
                                 height="36px"
                                 mb={2}
@@ -111,5 +106,4 @@ type ResetPasswordProps = {
             </Flex>
         );
     };
-
-export default ResetPassword;
+    export default ResetPassword;
