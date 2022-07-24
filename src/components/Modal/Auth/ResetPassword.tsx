@@ -16,11 +16,13 @@ type ResetPasswordProps = {
         const [success, setSuccess] = useState(false);
         const [sendPasswordResetEmail, sending, error] =
             useSendPasswordResetEmail(auth);
+
         const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             await sendPasswordResetEmail(email);
             setSuccess(true);
         };
+
         return (
             <Flex direction="column" alignItems="center" width="100%">
                 <Icon as={BsReddit} color="brand.100" fontSize={40} mb={2} />
@@ -58,10 +60,13 @@ type ResetPasswordProps = {
                                 }}
                                 bg="gray.50"
                             />
-                            <Text textAlign="center" fontSize="10pt" color="red">
-                                {error?.message}
-                            </Text>
-                            <Button
+                                {error && (
+                                    <Text textAlign="center" fontSize="10pt" color="red">
+                                        {error.message}
+                                    </Text>
+                                )}
+
+                             <Button
                                 width="100%"
                                 height="36px"
                                 mb={2}
